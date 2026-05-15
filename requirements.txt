@@ -1,4 +1,11 @@
 flask
-opencv-python
+gunicorn
+opencv-python-headless
 numpy
 requests
+ultralytics
+torch
+torchvision
+pillow
+supabase
+werkzeug

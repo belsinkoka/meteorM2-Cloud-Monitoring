@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/georaster/dist/georaster.browser.min.js"></script>
+    <script src="https://unpkg.com/georaster-layer-for-leaflet/dist/georaster-layer-for-leaflet.min.js"></script>
+</head>
+
+<h1 class="dashboard-heading">
+    METEOR M2 MONITORING CUACA
+    {% if is_history %}
+    <span style="font-size:16px; color:yellow;">(Riwayat Monitoring)</span>
+    {% endif %}
+</h1>
+
+<!-- MODAL POPUP -->
+<div id="imageModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+
+        <h3>🌦️ Penjelasan Citra Meteor-M2</h3>
+
+        <div class="modal-body">
+            <p>
+                Ini merupakan gambar hasil decode satelit Meteor-M2.
+            </p>
+
+            <ul>
+                <li>Gambar ini merupakan keluaran MSA</li>
+                <p> MSA adalah citra hasil gabungan beberapa kanal satelit seperti infrared dan visible, sehingga
+                    informasi awan bisa dilihat lebih lengkap dibandingkan satu kanal saja.</p>
+                <li>Jika ada garis-garis hitam, itu merupakan noise.</li>
+                <p> menunjukkan adanya kehilangan data saat proses transmisi sinyal dari satelit ke stasiun bumi.
+                    Hal ini disebabkan oleh gangguan sinyal, interferensi, atau kegagalan sensor dalam merekam
+                    data pada bagian tertentu.</p>
+                <li>Meteor M2-4 memiliki orbit yang melewati pulau Jawa, Sumatra, dan Kalimantan</li>
+                <p> Karena orbit ini, citra yang didapatkan dari Pulau Jawa sampai Pulau Sumba, hampir seluruh pulau
+                    Kalimantan, dan seluruh Pulau Sumatra.
+                </p>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div id="cbModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModalCB()">&times;</span>
+
+        <h3>⛈️ Proses Deteksi Awan Cumulonimbus</h3>
+
+        <div class="modal-body">
+
+            <p>
+                Gambar ini merupakan hasil akhir dari proses deteksi awan Cumulonimbus
+                berbasis Machine Learning dan Artificial Intelligence.
+            </p>
+
+            <ul>
+                <li>
+                    <strong>1. Input Citra (TIF)</strong><br>
+                    Sistem menerima citra satelit Meteor-M2 dalam format TIF hasil decoding.
+                </li>
+
+                <li>
+                    <strong>2. Pre-processing</strong><br>
+                    Citra TIF dikonversi menjadi format PNG agar dapat diproses oleh model.
+                    Pada tahap ini juga dilakukan normalisasi dan penyesuaian ukuran gambar.
+                </li>
+
+                <li>
+                    <strong>3. Deteksi dengan Deep Learning (YOLOv8)</strong><br>
+                    Model YOLOv8 digunakan untuk mendeteksi objek awan Cumulonimbus secara langsung pada citra.
+                    Model ini bekerja dengan mengenali pola visual, bentuk awan, serta lokasi spasial untuk menghasilkan
+                    bounding box pada area yang terindikasi sebagai awan CB.
+                </li>
+
+                <li>
+                    <strong>4. Peran Artificial Intelligence</strong><br>
+                    Artificial Intelligence digunakan untuk meningkatkan akurasi deteksi dengan mempelajari pola awan
+                    dari dataset citra satelit yang telah dilabeli. Model mampu mengenali berbagai bentuk awan CB,
+                    termasuk yang kompleks dan sebagian tertutup noise.
+                </li>
+
+                <li>
+                    <strong>5. Output Visualisasi</strong><br>
+                    Hasil deteksi ditampilkan dalam bentuk bounding box pada citra, yang menunjukkan lokasi awan
+                    Cumulonimbus yang terdeteksi oleh model.
+                </li>
+            </ul>
+
+            <p>
+                Proses ini memungkinkan sistem untuk mendeteksi potensi cuaca ekstrem secara
+                otomatis dan real-time berdasarkan citra satelit.
+            </p>
+
+        </div>
+    </div>
+</div>
+
+<body class="dashboard-page">
+    <div class="dashboard-topbar">
+        <div class="top-left">
+            <span>Masuk sebagai: {{ session['user'] }}</span>
+        </div>
+
+        <div class="top-right">
+            <span>
+                🛰 Terakhir Diperbarui: {{ last_update }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Hamburger Button -->
+    <div class="hamburger" onclick="toggleMenu()">☰</div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <a href="javascript:void(0)" onclick="toggleMenu()">✖</a>
+        <a href="{{ url_for('home') }}">Beranda</a>
+        <a href="{{ url_for('dashboard') }}">Dashboard Monitoring</a>
+        <a href="{{ url_for('cb_guide') }}">Panduan Indikasi Awan CB</a>
+        <a href="{{ url_for('history') }}">Riwayat Monitoring</a>
+        <a href="{{ url_for('about') }}">Tentang Kami</a>
+        <a href="{{ url_for('logout') }}">Keluar</a>
+    </div>
+
+    <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
+
+    {% if not is_history %}
+    <form action="{{ url_for('save_data') }}" method="POST">
+        <p align="right">
+            <button class="btn-save">💾 Simpan Hasil Deteksi</button>
+        </p>
+    </form>
+    {% endif %}
+
+    {% if is_history %}
+    <div class="history-mode-banner">
+        📁 Riwayat Monitoring — DATA YANG TERSIMPAN
+    </div>
+    {% endif %}
+
+    <div class="dashboard-container">
+
+        <!-- Row 1 -->
+        <div class="row-top">
+
+            <div class="card">
+                <h3>Gambar Dari Meteor-M2</h3>
+                <h5>Untuk Penjelasan Gambar Klik dibawah </h5>
+                {% if ir_file %}
+                <img src="/data/{{ ir_file }}?t={{ timestamp }}" class="dashboard-image" onclick="openModal()"
+                    style="cursor:pointer;">
+                {% else %}
+                <p>Tidak ada data IR</p>
+                {% endif %}
+                <form action="{{ url_for('upload_tif') }}" method="POST" enctype="multipart/form-data">
+
+                    <div class="upload-row">
+
+                        <div class="custom-file-upload">
+                            <label for="tif_file" class="file-label">
+                                📂 Pilih File TIF
+                            </label>
+                            <span id="file-name">Belum ada file</span>
+                            <input type="file" id="tif_file" name="tif_file" accept=".tif,.tiff" required>
+                        </div>
+
+                        <button type="submit" class="btn-upload">
+                            📤 Upload Citra TIF
+                        </button>
+
+                    </div>
+
+            </div>
+
+            <div class="card">
+                <h3>Gambar Setelah Proses Identifikasi Awan CB</h3>
+                <h5>Untuk Penjelasan Gambar Klik dibawah </h5>
+                {% if cb_file %}
+                <img src="/data/{{ cb_file }}?t={{ timestamp }}" class="dashboard-image" onclick="openModalCB()"
+                    style="cursor:pointer;">
+                {% else %}
+                <p>Belum ada hasil deteksi</p>
+                {% endif %}
+                <p id="cb-count">Jumlah Awan CB terdeteksi: {{ jumlah_cb }}</p>
+
+                <!-- TOGGLE BUTTON -->
+                <button id="toggle-legend" class="btn-toggle">
+                    🔽 Tampilkan Legend
+                </button>
+
+                <!-- LEGEND -->
+                <div id="legend-box" class="legend-box hidden">
+                    <h4>📊 Confidence CB</h4>
+
+                    <div class="legend-item strong">
+                        <span class="dot"></span>
+                        <div>
+                            <b>Strong</b>
+                            <small>≥ 40%</small>
+                        </div>
+                    </div>
+
+                    <div class="legend-item moderate">
+                        <span class="dot"></span>
+                        <div>
+                            <b>Moderate</b>
+                            <small>20–39%</small>
+                        </div>
+                    </div>
+
+                    <div class="legend-item weak">
+                        <span class="dot"></span>
+                        <div>
+                            <b>Weak</b>
+                            <small>&lt; 20%</small>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+        <!-- Row 2 -->
+        <div class="row-bottom">
+
+            <div class="card full cb-info-card">
+                <h3>Informasi Awan Cumulonimbus</h3>
+
+                {% if cb_table %}
+                <table class="cb-table">
+
+                    <thead>
+                        <tr>
+                            <th>CB</th>
+                            <th>Confidence (%)</th>
+                            <th>Temperature (°C)</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="cb-table-body">
+                        {% for row in cb_table %}
+                        <tr>
+                            <td>CB {{row.cb}}</td>
+                            <td>{{row.confidence}}</td>
+                            <td>{{row.temperature}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+                {% else %}
+                <p>Tidak ada data CB</p>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        <!-- Row 3 : Map Indonesia -->
+        <div class="row-bottom">
+
+            <div class="card full">
+                <h3>Citra Satelit yang diambil dari Jakarta</h3>
+
+                <div id="satellite-map"></div>
+
+            </div>
+
+        </div>
+
+        <!-- Row bmkg -->
+        <div class="row-bottom">
+
+            <div class="card full">
+                <h3>Referensi BMKG</h3>
+                {% if bmkg_file %}
+                <img src="/data/{{ bmkg_file }}?t={{ timestamp }}">
+                {% else %}
+                <img src="/bmkg/bmkg_latest.png?{{ timestamp }}">
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        const toggleBtn = document.getElementById("toggle-legend");
+        const legendBox = document.getElementById("legend-box");
+
+        toggleBtn.addEventListener("click", () => {
+            legendBox.classList.toggle("hidden");
+
+            if (legendBox.classList.contains("hidden")) {
+                toggleBtn.innerText = "🔽 Tampilkan Legend";
+            } else {
+                toggleBtn.innerText = "🔼 Sembunyikan Legend";
+            }
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const input = document.getElementById("tif_file");
+            const fileNameText = document.getElementById("file-name");
+
+            input.addEventListener("change", function () {
+                if (this.files.length > 0) {
+                    fileNameText.innerText = this.files[0].name;
+                } else {
+                    fileNameText.innerText = "Belum ada file";
+                }
+            });
+        });
+    </script>
+
+    <script>
+        function toggleMenu() {
+            var sidebar = document.getElementById("sidebar");
+            var overlay = document.getElementById("overlay");
+
+            if (sidebar.style.width && sidebar.style.width !== "0px") {
+                sidebar.style.width = "0";
+                overlay.style.display = "none";
+            } else {
+                sidebar.style.width = "250px";
+                overlay.style.display = "block";
+            }
+        }
+    </script>
+
+    <script>
+
+        var map = L.map('satellite-map', {
+            zoomControl: true,
+            scrollWheelZoom: false
+        }).setView([-2, 110], 5);
+
+        var cbData = {{ cb_table | tojson }};
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        // bounds dari Flask
+        var bounds = {{ bounds | tojson }};
+
+        var imageBounds = [
+            [bounds.south, bounds.west],
+            [bounds.north, bounds.east]
+        ];
+
+        // URL gambar dari Flask
+        var irFile = "{{ ir_file }}";
+
+        if (irFile && irFile !== "None") {
+
+            var imageUrl = "/data/" + irFile + "?t={{ timestamp }}";
+
+            var satOverlay = L.imageOverlay(
+                imageUrl,
+                imageBounds,
+                { opacity: 0.5 }
+            ).addTo(map);
+
+            map.fitBounds(imageBounds);
+        }
+    </script>
+
+    <script>
+
+        function getRainStatus(conf, temp) {
+            if (conf >= 70 && temp <= -60) return "⛈ Hujan Lebat";
+            if (conf >= 50 && temp <= -40) return "🌧 Hujan Sedang";
+            if (conf >= 30) return "☁ Potensi Hujan";
+            return "☀ Aman";
+        }
+
+        var airports = [
+            // JAWA
+            { name: "Soekarno-Hatta (CGK)", lat: -6.1256, lon: 106.6559 },
+            { name: "Halim (HLP)", lat: -6.2666, lon: 106.891 },
+            { name: "Juanda (SUB)", lat: -7.3798, lon: 112.787 },
+            { name: "Adi Soemarmo (SOC)", lat: -7.5161, lon: 110.756 },
+            { name: "Ahmad Yani (SRG)", lat: -6.9727, lon: 110.375 },
+
+            // SUMATRA
+            { name: "Kualanamu (KNO)", lat: 3.642, lon: 98.885 },
+            { name: "Minangkabau (PDG)", lat: -0.786, lon: 100.281 },
+            { name: "Sultan Mahmud Badaruddin II (PLM)", lat: -2.898, lon: 104.699 },
+            { name: "Hang Nadim (BTH)", lat: 1.121, lon: 104.119 },
+
+            // KALBAR
+            { name: "Supadio (PNK)", lat: -0.1507, lon: 109.404 },
+        ];
+
+        function getAirportWeather(lat, lon, cbData) {
+            let matched = [];
+
+            cbData.forEach(cb => {
+                let latMin = Math.min(cb.bounds[0][0], cb.bounds[1][0]);
+                let latMax = Math.max(cb.bounds[0][0], cb.bounds[1][0]);
+                let lonMin = Math.min(cb.bounds[0][1], cb.bounds[1][1]);
+                let lonMax = Math.max(cb.bounds[0][1], cb.bounds[1][1]);
+
+                let margin = 0.1; // bisa di-tuning
+
+                if (
+                    lat >= latMin - margin &&
+                    lat <= latMax + margin &&
+                    lon >= lonMin - margin &&
+                    lon <= lonMax + margin
+                ) {
+                    matched.push(cb);
+                }
+            });
+
+            let confidence = 0;
+            let temp = null;
+
+            if (matched.length > 0) {
+                confidence = Math.max(...matched.map(c => c.confidence));
+                temp = Math.min(...matched.map(c => c.temperature));
+            }
+
+            return { confidence, temp };
+        }
+    </script>
+
+    <script>
+        function openModal() {
+            document.getElementById("imageModal").style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById("imageModal").style.display = "none";
+        }
+    </script>
+
+    <script>
+        function openModalCB() {
+            document.getElementById("cbModal").style.display = "block";
+        }
+
+        function closeModalCB() {
+            document.getElementById("cbModal").style.display = "none";
+        }
+    </script>
+
+    <script>
+        window.onclick = function (event) {
+            var modal1 = document.getElementById("imageModal");
+            var modal2 = document.getElementById("cbModal");
+
+            if (event.target == modal1) {
+                modal1.style.display = "none";
+            }
+            if (event.target == modal2) {
+                modal2.style.display = "none";
+            }
+        }
+    </script>
+
+    <script>
+        async function fetchLatestData() {
+            try {
+                const res = await fetch("/api/latest_cb");
+                const data = await res.json();
+
+                // 🔥 UPDATE GLOBAL DATA
+                cbData = data.cb_table;
+
+                document.getElementById("cb-count").innerText =
+                    "Jumlah Awan CB terdeteksi: " + data.count;
+
+                let tableBody = document.getElementById("cb-table-body");
+
+                if (tableBody) {
+
+                    if (!data.cb_table || data.cb_table.length === 0) {
+                        return;
+                    }
+
+                    tableBody.innerHTML = "";
+
+                    data.cb_table.forEach(cb => {
+                        let row = `
+                <tr>
+                    <td>CB ${cb.cb}</td>
+                    <td>${cb.confidence.toFixed(2)}</td>
+                    <td>${cb.temperature}</td>
+                </tr>
+                `;
+                        tableBody.innerHTML += row;
+                    });
+                }
+
+                // 🔥 OPTIONAL: refresh map marker (next step)
+
+            } catch (err) {
+                console.log("Realtime error:", err);
+            }
+        }
+
+        function updateMapMarkers() {
+            map.eachLayer(layer => {
+                if (layer instanceof L.CircleMarker || layer instanceof L.Marker) {
+                    map.removeLayer(layer);
+                }
+            });
+
+            airports.forEach(ap => {
+
+                let result = getAirportWeather(ap.lat, ap.lon, cbData);
+
+                let confidence = result.confidence;
+                let temp = result.temp;
+
+                let color = "green";
+
+                if (confidence >= 40) color = "red";
+                else if (confidence >= 20) color = "yellow";
+
+                let marker = L.marker([ap.lat, ap.lon], {
+                    icon: smallAirportIcon
+                }).addTo(map);
+
+                marker.bindPopup(`
+        <b>✈️ ${ap.name}</b><br>
+        📍 Lat: ${ap.lat}, Lon: ${ap.lon}<br>
+        🌡 Suhu: ${temp !== null ? temp + "°C" : "Tidak ada CB"}<br>
+        🌧 Status: ${getRainStatus(confidence, temp)}<br>
+        📊 Confidence: ${confidence.toFixed(1)}%
+    `);
+            });
+        }
+
+        var smallAirportIcon = L.icon({
+            iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+            iconSize: [14, 22],
+            iconAnchor: [7, 22],
+            popupAnchor: [1, -18]
+        });
+
+        updateMapMarkers();
+
+        // 🔥 refresh tiap 5 detik
+        setInterval(fetchLatestData, 5000);
+
+    </script>
+
+</body>
+
+</html>

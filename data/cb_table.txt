@@ -1,0 +1,2 @@
+CB,Confidence(%),Temperature(C),lat1,lon1,lat2,lon2
+1,23.81,-66.8,-22.4227,167.2046,-28.1745,172.2688

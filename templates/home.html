@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Meteor-M2 Monitoring</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+</head>
+
+<body class="home-page">
+
+    <!-- HAMBURGER -->
+    <div class="hamburger clean-hamburger" onclick="toggleMenu()">☰</div>
+
+    <!-- SIDEBAR -->
+    <div id="sidebar" class="sidebar">
+        <a href="javascript:void(0)" onclick="toggleMenu()">✖</a>
+        <a href="{{ url_for('home') }}">Beranda</a>
+        <a href="{{ url_for('dashboard') }}">Dashboard Monitoring</a>
+        <a href="{{ url_for('cb_guide') }}">Panduan Indikasi Awan CB</a>
+        <a href="{{ url_for('history') }}">Riwayat Monitoring</a>
+        <a href="{{ url_for('about') }}">Tentang Kami</a>
+        <a href="{{ url_for('logout') }}">Keluar</a>
+    </div>
+
+    <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
+
+    <div class="scroll-container">
+
+        <!-- SECTION 1 -->
+        <section class="full-section section-hero">
+            <div class="hero-left fade">
+                <h1>Meteor-M2 Monitoring Cuaca</h1>
+
+                <p>
+                    Dashboard monitoring cuaca berbasis citra satelit untuk mendeteksi awan Cumulonimbus secara
+                    real-time,
+                </p>
+                <p>
+                    mendukung keselamatan dan pengambilan keputusan bagi nelayan serta Air Traffic Control
+                    (ATC) di bandara.
+                </p>
+
+                <a href="{{ url_for('dashboard') }}" class="hero-button">
+                    Masuk ke Dashboard
+                </a>
+            </div>
+        </section>
+
+        <!-- SECTION 2 -->
+        <section class="full-section section-monitoring">
+            <div class="section-content fade">
+                <h2>🌦 Monitoring Cuaca</h2>
+                <p>
+                    Monitoring cuaca merupakan proses observasi atmosfer secara kontinu
+                    untuk menganalisis dinamika awan, suhu, kelembapan, tekanan udara,
+                    serta pola sirkulasi angin. Sistem monitoring modern memanfaatkan
+                    data satelit, radar cuaca, dan sensor permukaan untuk menghasilkan
+                    informasi real-time.
+                </p>
+                <p>
+                    Dalam sistem berbasis satelit, citra inframerah (IR) digunakan untuk
+                    mengestimasi suhu puncak awan. Awan dengan suhu puncak yang lebih
+                    dingin umumnya menunjukkan pertumbuhan vertikal yang kuat, yang
+                    sering dikaitkan dengan aktivitas konvektif intens.
+                </p>
+                <p>
+                    Monitoring secara berkala memungkinkan deteksi dini potensi
+                    cuaca ekstrem sehingga dapat mendukung sistem peringatan dini
+                    dan mitigasi risiko bencana.
+                </p>
+            </div>
+        </section>
+
+        <!-- SECTION 3 -->
+        <section class="full-section section-cb">
+            <div class="section-content fade">
+                <h2>⛈ Awan Cumulonimbus (CB)</h2>
+                <p>
+                    Awan Cumulonimbus (CB) adalah awan konvektif vertikal yang
+                    berkembang dari lapisan rendah hingga mencapai tropopause.
+                    Awan ini dapat memiliki tinggi lebih dari 10–15 km dan
+                    sering ditandai dengan bentuk landasan (anvil).
+                </p>
+                <p>
+                    CB terbentuk akibat proses konveksi kuat ketika udara lembap
+                    naik secara cepat (updraft). Pendinginan adiabatik menyebabkan
+                    kondensasi uap air dan pelepasan panas laten, yang memperkuat
+                    proses konvektif tersebut.
+                </p>
+                <p>
+                    Dampak yang dapat ditimbulkan meliputi hujan lebat, badai petir,
+                    angin kencang, hujan es, hingga potensi puting beliung.
+                    Oleh karena itu, deteksi CB secara real-time sangat penting
+                    dalam sistem monitoring cuaca operasional.
+                </p>
+            </div>
+        </section>
+
+        <!-- SECTION 4 -->
+        <section class="full-section section-parameter">
+            <div class="section-content fade">
+                <h2>📊 Parameter dan Metode Identifikasi</h2>
+
+                <p>
+                    Sistem deteksi awan Cumulonimbus (CB) pada aplikasi ini
+                    menggunakan pendekatan berbasis <strong>Machine Learning (ML)</strong>
+                    dan <strong>Artificial Intelligence (AI)</strong> dengan memanfaatkan
+                    citra satelit sebagai input utama. Model yang digunakan telah dilatih
+                    untuk mengenali karakteristik awan konvektif berdasarkan pola visual
+                    dan distribusi suhu pada citra.
+                </p>
+
+                <ul>
+                    <li>
+                        <strong>Model Prediksi Berbasis AI</strong> -
+                        Menggunakan model deep learning untuk mengklasifikasikan
+                        setiap bagian citra sebagai awan CB atau non-CB berdasarkan
+                        pola citra yang telah dipelajari selama proses pelatihan.
+                    </li>
+
+                    <li>
+                        <strong>Confidence Score</strong> -
+                        Menunjukkan tingkat keyakinan model AI terhadap hasil
+                        deteksi awan CB dalam bentuk persentase probabilitas.
+                    </li>
+
+                    <li>
+                        <strong>Brightness Temperature</strong> -
+                        Digunakan sebagai indikator suhu puncak awan, dimana
+                        nilai suhu yang lebih rendah mengindikasikan awan
+                        konvektif yang berkembang secara vertikal.
+                    </li>
+
+                    <li>
+                        <strong>Sliding Window Analysis</strong> -
+                        Citra satelit dibagi menjadi beberapa bagian (tile)
+                        untuk dianalisis secara lokal oleh model AI sehingga
+                        deteksi dapat dilakukan secara lebih detail.
+                    </li>
+
+                    <li>
+                        <strong>Clustering dan Bounding Box</strong> -
+                        Hasil deteksi dari beberapa tile yang berdekatan
+                        dikelompokkan menggunakan metode clustering untuk
+                        membentuk area awan CB yang lebih representatif.
+                    </li>
+                </ul>
+
+                <p>
+                    Kombinasi antara model AI dan analisis spasial ini memungkinkan
+                    sistem untuk mendeteksi awan Cumulonimbus secara lebih akurat
+                    dibandingkan metode berbasis threshold konvensional.
+                </p>
+            </div>
+        </section>
+
+        <!-- SECTION 5 -->
+        <section class="full-section section-meteor">
+            <div class="section-content fade">
+                <h2>🛰 Satelit Meteor M2</h2>
+                <p>
+                    Meteor-M2 adalah satelit observasi bumi milik Rusia
+                    yang beroperasi pada orbit polar sun-synchronous,
+                    memungkinkan cakupan global secara periodik.
+                </p>
+                <p>
+                    Satelit ini dilengkapi dengan sensor MSU-MR (Multispectral Scanner Unit),
+                    yang mampu merekam citra dalam spektrum visible dan inframerah.
+                    Kanal inframerah sangat penting dalam analisis suhu puncak awan
+                    dan deteksi fenomena konvektif.
+                </p>
+                <p>
+                    Dengan menggunakan RTL-SDR sebagai penerima sinyal,
+                    data citra dapat diunduh secara langsung dan diproses
+                    secara mandiri untuk keperluan monitoring cuaca real-time.
+                </p>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        function toggleMenu() {
+            const sidebar = document.getElementById("sidebar");
+            const overlay = document.getElementById("overlay");
+
+            if (sidebar.style.width === "250px") {
+                sidebar.style.width = "0";
+                overlay.style.display = "none";
+                overlay.style.pointerEvents = "none";
+            } else {
+                sidebar.style.width = "250px";
+                overlay.style.display = "block";
+                overlay.style.pointerEvents = "auto";
+            }
+        }
+    </script>
+
+    <script>
+        const faders = document.querySelectorAll(".fade");
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add("show");
+                }
+            });
+        }, { threshold: 0.5 });
+
+        faders.forEach(el => observer.observe(el));
+    </script>
+</body>

@@ -1,0 +1,128 @@
+/* =========================================
+   GLOBAL RESET
+========================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* =========================================
+   HAMBURGER
+========================================= */
+
+.hamburger {
+    font-size: 26px;
+    cursor: pointer;
+    color: white;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 9999;
+    background: transparent;
+    border-radius: 6px;
+}
+
+/* SIDEBAR */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 100%;
+    background-color: #5c2d0c;
+    padding-top: 60px;
+    overflow-x: hidden;
+    transition: 0.3s;
+    z-index: 3000;
+    /* HARUS PALING TINGGI */
+}
+
+/* OVERLAY */
+.overlay {
+    position: fixed;
+    display: none;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    /* LEBIH RENDAH dari sidebar */
+}
+
+.sidebar.active {
+    left: 0;
+}
+
+.sidebar a {
+    display: block;
+    color: white;
+    padding: 15px 20px;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.sidebar a:hover {
+    background-color: #8B6F47;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 22px;
+    cursor: pointer;
+    color: white;
+}
+
+.topbar {
+    background-color: #5A2D0C;
+    padding: 15px;
+}
+
+.hamburger {
+    font-size: 25px;
+    color: white;
+    cursor: pointer;
+}
+
+.sidebar {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #512E1B;
+    overflow-x: hidden;
+    transition: 0.3s;
+    padding-top: 80px;
+    z-index: 15000;
+}
+
+.sidebar a {
+    padding: 15px 25px;
+    text-decoration: none;
+    font-size: 18px;
+    color: white;
+    display: block;
+}
+
+.sidebar a:hover {
+    background-color: #735D42;
+}
+
+.overlay {
+    position: fixed;
+    display: none;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 14000;
+}

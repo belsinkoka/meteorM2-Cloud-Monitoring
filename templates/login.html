@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Login - Meteor M2</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@300;400;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="login-container">
+        <div class="login-card">
+            <h1>Meteor M2</h1>
+            <h2>Pemantauan Cuaca</h2>
+
+            {% if error %}
+            <p class="error">{{ error }}</p>
+            {% endif %}
+
+            <form method="POST">
+                <input type="text" name="username" placeholder="Identitas Pengguna" required minlength="3">
+
+                <div class="password-wrapper">
+                    <input type="password" name="password" id="password-login" placeholder="Kata Sandi" required
+                        minlength="8">
+                    <span class="toggle-password" onclick="togglePassword('password-login', this)">👁️</span>
+                </div>
+
+                <button type="submit">Masuk</button>
+            </form>
+
+            <p class="login-register-text">
+                Belum punya akun?
+                <a href="{{ url_for('register') }}">Daftar Akun</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword(id, el) {
+            var input = document.getElementById(id);
+
+            if (input.type === "password") {
+                input.type = "text";
+                el.innerText = "🙈";
+            } else {
+                input.type = "password";
+                el.innerText = "👁️";
+            }
+        }
+    </script>
+</body>
+
+</html>

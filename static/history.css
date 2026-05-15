@@ -1,0 +1,82 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(to right, #C7A98C, #8FA9B3);
+}
+
+.dashboard-topbar {
+    background-color: #5A2D0C;
+    color: white;
+    padding: 10px 20px;
+}
+
+/* CONTAINER */
+.history-container {
+    width: 90%;
+    margin: 40px auto;
+}
+
+/* TITLE */
+.history-title {
+    text-align: center;
+    color: #5A2D0C;
+    margin-bottom: 30px;
+}
+
+/* CARD */
+.history-card {
+    background-color: #8FA9B3;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* TABLE */
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.history-table th {
+    background-color: #5A2D0C;
+    color: white;
+    padding: 12px;
+}
+
+.history-table td {
+    padding: 12px;
+    text-align: center;
+    background-color: #d6e2e7;
+}
+
+.history-table tr:nth-child(even) td {
+    background-color: #c5d7de;
+}
+
+/* BUTTON */
+.btn-load {
+    background-color: #5A2D0C;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.btn-load:hover {
+    background-color: #8b6f47;
+}
+
+.btn-delete-multi {
+    background-color: #8b0000;
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-delete-multi:hover {
+    background-color: #b22222;
+}

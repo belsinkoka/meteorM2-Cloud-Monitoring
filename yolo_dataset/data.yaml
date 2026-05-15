@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 1
+names: ['CB']
+
+roboflow:
+  workspace: belsinks-workspace
+  project: cb-detection
+  version: 5
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/belsinks-workspace/cb-detection/dataset/5

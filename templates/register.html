@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Register - Meteor M2</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@300;400;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="login-container">
+        <div class="login-card">
+            <h1>Meteor M2</h1>
+            <h2>Buat Akun</h2>
+
+            {% if error %}
+            <p class="error">{{ error }}</p>
+            {% endif %}
+
+            <form method="POST" onsubmit="return validatePassword()">
+                <input type="text" name="username" placeholder="Identitas Pengguna" required minlength="3">
+
+                <div class="password-wrapper">
+                    <input type="password" name="password" id="password-register" placeholder="Kata Sandi" required
+                        minlength="8">
+                    <span class="toggle-password" onclick="togglePassword('password-register', this)">👁️</span>
+                </div>
+
+                <div class="password-wrapper">
+                    <input type="password" id="confirm-password" placeholder="Konfirmasi Kata Sandi" required
+                        minlength="8">
+                    <span class="toggle-password" onclick="togglePassword('confirm-password', this)">👁️</span>
+                </div>
+
+                <button type="submit">Daftar</button>
+            </form>
+
+            <p style="margin-top:15px; color:#ddd;">
+                Sudah punya akun?
+                <a href="{{ url_for('login') }}" style="color:white;">Masuk</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword(id, el) {
+            var input = document.getElementById(id);
+
+            if (input.type === "password") {
+                input.type = "text";
+                el.innerText = "🙈";
+            } else {
+                input.type = "password";
+                el.innerText = "👁️";
+            }
+        }
+
+        function validatePassword() {
+            var pass = document.getElementById("password-register").value;
+            var confirm = document.getElementById("confirm-password").value;
+
+            if (pass !== confirm) {
+                alert("Password tidak sama!");
+                return false;
+            }
+            return true;
+        }
+    </script>
+
+</body>
+
+</html>

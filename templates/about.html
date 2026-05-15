@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Tentang Kami</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='about.css') }}">
+</head>
+
+<body class="home-page">
+
+    <!-- HAMBURGER -->
+    <div class="hamburger clean-hamburger" onclick="toggleMenu()">☰</div>
+
+    <!-- SIDEBAR -->
+    <div id="sidebar" class="sidebar">
+        <a href="javascript:void(0)" onclick="toggleMenu()">✖</a>
+        <a href="{{ url_for('home') }}">Beranda</a>
+        <a href="{{ url_for('dashboard') }}">Dashboard Monitoring</a>
+        <a href="{{ url_for('cb_guide') }}">Panduan Indikasi Awan CB</a>
+        <a href="{{ url_for('history') }}">Riwayat Monitoring</a>
+        <a href="{{ url_for('about') }}">Tentang Kami</a>
+        <a href="{{ url_for('logout') }}">Keluar</a>
+    </div>
+
+    <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
+
+    <div class="about-wrapper">
+
+        <!-- PROFIL OKA -->
+        <div class="about-card">
+            <img src="{{ url_for('static', filename='images/profiloka.jpeg') }}" class="profile-img">
+
+            <h2>👨‍💻 Mahasiswa 1</h2>
+
+            <p><strong>Nama:</strong> Belsink Lokatara Simanjuntak</p>
+            <p><strong>NIM:</strong> 2303332049</p>
+            <p><strong>Program Studi:</strong> Telekomunikasi</p>
+            <p><strong>Universitas:</strong> Politeknik Negeri Jakarta</p>
+
+            <div class="about-divider"></div>
+
+            <h3>📌 Judul Tugas Akhir</h3>
+            <p>
+                Konfigurasi Aplikasi Satdump Dan Dashboard Berbasis Website Untuk Pengolahan Sinyal Receive Menjadi
+                Citra Gambar
+            </p>
+
+            <div class="about-divider"></div>
+
+            <p><strong>Hobby:</strong> Musik</p>
+            <p><strong>Instagram:</strong> oka_simanjuntak</p>
+            <p><strong>LinkedIn:</strong> masukin nanti</p>
+            <p><strong>Quotes:</strong> So be it</p>
+
+        </div>
+
+        <!-- PROFIL ADE -->
+        <div class="about-card">
+            <img src="{{ url_for('static', filename='images/profile2.jpg') }}" class="profile-img">
+
+            <h2>👨‍💻 Mahasiswa 2</h2>
+
+            <p><strong>Nama:</strong> Ade Rafly Baehaqi</p>
+            <p><strong>NIM:</strong> 2303332093</p>
+            <p><strong>Program Studi:</strong> Telekomunikasi</p>
+            <p><strong>Universitas:</strong> Politeknik Negeri Jakarta</p>
+
+            <div class="about-divider"></div>
+
+            <h3>📌 Judul Tugas Akhir</h3>
+            <p>
+                Sistem Deteksi Awan Cumulonimbus Menggunakan Citra Satelit Meteor-M2
+                Berbasis Machine Learning
+            </p>
+
+            <div class="about-divider"></div>
+
+            <p><strong>Hobby:</strong> Bersepeda</p>
+            <p><strong>Instagram:</strong> @aderaflyb</p>
+            <p><strong>LinkedIn:</strong> Ade Rafly Baehaqi</p>
+            <p><strong>Quotes:</strong> all is well</p>
+        </div>
+
+    </div>
+
+    <script>
+        function toggleMenu() {
+            const sidebar = document.getElementById("sidebar");
+            const overlay = document.getElementById("overlay");
+
+            if (sidebar.style.width === "250px") {
+                sidebar.style.width = "0";
+                overlay.style.display = "none";
+                overlay.style.pointerEvents = "none";
+            } else {
+                sidebar.style.width = "250px";
+                overlay.style.display = "block";
+                overlay.style.pointerEvents = "auto";
+            }
+        }
+    </script>
+</body>
+
+</html>

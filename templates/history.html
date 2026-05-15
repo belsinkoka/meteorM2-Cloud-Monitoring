@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>History CB</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='history.css') }}">
+</head>
+
+<body class="dashboard-page">
+
+    <!-- TOPBAR -->
+    <div class="dashboard-topbar">
+        <div class="top-left">
+            <center>Login sebagai: {{ session['user'] }}</center>
+        </div>
+
+        <div class="top-right">
+            <center>📁 Riwayat Data</center>
+        </div>
+    </div>
+
+    <!-- HAMBURGER -->
+    <div class="hamburger" onclick="toggleMenu()">☰</div>
+
+    <!-- SIDEBAR -->
+    <div id="sidebar" class="sidebar">
+        <a href="javascript:void(0)" onclick="toggleMenu()">✖</a>
+        <a href="{{ url_for('home') }}">Beranda</a>
+        <a href="{{ url_for('dashboard') }}">Dashboard Monitoring</a>
+        <a href="{{ url_for('cb_guide') }}">Panduan Indikasi CB</a>
+        <a href="{{ url_for('history') }}">Riwayat Monitoring</a>
+        <a href="{{ url_for('about') }}">Tentang Kami</a>
+        <a href="{{ url_for('logout') }}">Keluar</a>
+    </div>
+
+    <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
+
+    <!-- CONTENT -->
+    <div class="history-container">
+
+        <h1 class="history-title">📊 Riwayat Data</h1>
+
+        <div class="history-card">
+            <form method="POST" action="{{ url_for('delete_selected') }}"
+                onsubmit="return confirm('Yakin hapus data?')">
+
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" onclick="toggleAll(this)"></th>
+                            <th>Waktu</th>
+                            <th>Jumlah CB</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for row in data %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="selected_ids" value="{{ row.id }}">
+                            </td>
+                            <td>{{ row.created_at }}</td>
+                            <td>{{ row.cb_count }}</td>
+                            <td>
+                                <a href="{{ url_for('load_history', id=row.id) }}" class="btn-load">
+                                    Load
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 20px; text-align:center;">
+                    <button type="submit" class="btn-delete-multi">
+                        🗑 Hapus Yang Terpilih
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+
+    <!-- SCRIPT -->
+    <script>
+        function toggleMenu() {
+            var sidebar = document.getElementById("sidebar");
+            var overlay = document.getElementById("overlay");
+
+            if (sidebar.style.width === "250px") {
+                sidebar.style.width = "0";
+                overlay.style.display = "none";
+            } else {
+                sidebar.style.width = "250px";
+                overlay.style.display = "block";
+            }
+        }
+    </script>
+    <script>
+        function toggleAll(source) {
+            checkboxes = document.getElementsByName('selected_ids');
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = source.checked;
+            }
+        }
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,94 @@
+/* =========================================
+   HOME PAGE SCROLL SNAP
+========================================= */
+
+html,
+body {
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Scroll container */
+.scroll-container {
+    height: 100vh;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+}
+
+/* Section */
+.full-section {
+    height: 100vh;
+    scroll-snap-align: start;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10%;
+    text-align: left;
+    color: white;
+}
+
+/* Fade */
+.fade {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 1s ease;
+}
+
+.fade.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.hero-button {
+    display: inline-block;
+    background-color: #D5B195;
+    color: #512E1B;
+    padding: 14px 35px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.hero-button:hover {
+    background-color: #735D42;
+    color: white;
+}
+
+/* Background per section */
+
+.section-hero {
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+        url('/static/images/bg-home.jpeg');
+    background-size: cover;
+}
+
+.section-monitoring {
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+        url('/static/images/bg-weather.jpg');
+    background-size: cover;
+}
+
+.section-cb {
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+        url('/static/images/bg-cumulonimbus.jpg');
+    background-size: cover;
+}
+
+.section-parameter {
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+        url('/static/images/bg-analysis.jpg');
+    background-size: cover;
+}
+
+.section-parameter li {
+    margin-bottom: 10px;
+}
+
+.section-meteor {
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+        url('/static/images/bg-satelitm2.jpeg');
+    background-size: cover;
+    color: whitesmoke;
+}

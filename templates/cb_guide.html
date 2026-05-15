@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Panduan Indikasi CB</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='cb_guide.css') }}">
+</head>
+
+<body>
+
+    <!-- HAMBURGER -->
+    <div class="hamburger clean-hamburger" onclick="toggleMenu()">☰</div>
+
+    <!-- SIDEBAR -->
+    <div id="sidebar" class="sidebar">
+        <a href="javascript:void(0)" onclick="toggleMenu()">✖</a>
+        <a href="{{ url_for('home') }}">Beranda</a>
+        <a href="{{ url_for('dashboard') }}">Dashboard Monitoring</a>
+        <a href="{{ url_for('cb_guide') }}">Panduan Indikasi Awan CB</a>
+        <a href="{{ url_for('history') }}">Riwayat Monitoring</a>
+        <a href="{{ url_for('about') }}">Tentang Kami</a>
+        <a href="{{ url_for('logout') }}">Keluar</a>
+    </div>
+
+    <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
+
+    <div class="page-header">
+        <h1>Panduan Indikasi Awan Cumulonimbus (CB)</h1>
+    </div>
+
+    <div class="container">
+
+        <!-- CARD 1 -->
+        <div class="card">
+            <h2>🛰 Citra Multi Channel Infrred(MCIR)</h2>
+            <p>
+                Citra MCIR digunakan untuk melihat suhu puncak awan.
+                MCIR memiliki kanal lebih banyak dari IR, sehingga menghasilkan gambar yang lebih
+                detail dan informatif.
+                Semakin dingin suhu, semakin tinggi awan tersebut.
+            </p>
+            <img src="{{ url_for('static', filename='images/cb-guide-mcir.png') }}" class="guide-img">
+        </div>
+
+        <!-- CARD 2 -->
+        <div class="card">
+            <h2>⚡ Ciri Visual Awan CB</h2>
+            <ul>
+                <li>🌩 Pertumbuhan vertikal tinggi</li>
+                <li>☁ Struktur padat dan menggumpal</li>
+                <li>🌪 Area luas dan konvektif</li>
+            </ul>
+            <img src="{{ url_for('static', filename='images/bg-cumulonimbus.jpg') }}" class="guide-img">
+        </div>
+
+        <!-- CARD 3 -->
+        <div class="card">
+            <h2>🤖 Hasil Deteksi Sistem</h2>
+            <p>🟨 Kotak = area terdeteksi CB</p>
+            <p>📊 Jumlah = cluster CB signifikan</p>
+            <img src="{{ url_for('static', filename='images/cb-guide-ai.png') }}" class="guide-img">
+        </div>
+
+        <!-- CARD 4 -->
+        <div class="card">
+            <h2>🔄 Alur Sistem</h2>
+            <p>
+                Data TIF → Konversi PNG → AI Detection → Cluster CB → Visualisasi
+            </p>
+            <img src="{{ url_for('static', filename='images/cb-guide-ai.png') }}" class="guide-img">
+        </div>
+
+    </div>
+
+    <script>
+        function toggleMenu() {
+            const sidebar = document.getElementById("sidebar");
+            const overlay = document.getElementById("overlay");
+            const hamburger = document.querySelector(".hamburger");
+
+            if (sidebar.style.width === "250px") {
+                sidebar.style.width = "0";
+                overlay.style.display = "none";
+                hamburger.style.display = "block";
+            } else {
+                sidebar.style.width = "250px";
+                overlay.style.display = "block";
+                hamburger.style.display = "none";
+            }
+        }
+    </script>
+
+</body>
+
+</html>

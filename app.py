@@ -323,7 +323,7 @@ def dashboard():
 
     # Cari file IR terbaru
     ir_file = None
-    image_extensions = (".png", ".jpg", ".jpeg", ".tif", ".tiff")
+    image_extensions = (".png", ".jpg", ".jpeg")
     files = [
         f for f in os.listdir(DATA_FOLDER)
         if f.lower().endswith(image_extensions) and not f.startswith("cb_")

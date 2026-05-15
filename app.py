@@ -376,6 +376,20 @@ def upload_tif():
         for f in os.listdir(UPLOAD_FOLDER):
             if f.endswith(".tif") or f.endswith(".tiff"):
                 os.remove(os.path.join(UPLOAD_FOLDER, f))
+        
+        # Hapus output lama
+        old_outputs = [
+            "satellite_latest.png",
+            "cb_latest.png",
+            "cb_table.txt",
+            "cb_count.txt",
+            "status.txt"
+        ]
+
+        for old_file in old_outputs:
+            old_path = os.path.join(DATA_FOLDER, old_file)
+            if os.path.exists(old_path):
+                os.remove(old_path)
 
         # Simpan dan rename file baru
         filename = secure_filename(file.filename)
@@ -383,8 +397,7 @@ def upload_tif():
         file.save(filepath)
         os.rename(filepath, os.path.join(UPLOAD_FOLDER, "input.tif"))
 
-        # Jalankan deteksi di thread terpisah
-        threading.Thread(target=detect_once).start()
+        detect_once()
 
     return redirect(url_for("dashboard"))
 

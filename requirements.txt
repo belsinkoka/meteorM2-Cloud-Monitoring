@@ -9,3 +9,5 @@ torchvision
 pillow
 supabase
 werkzeug
+rasterio
+matplotlib

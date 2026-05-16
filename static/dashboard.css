@@ -453,10 +453,16 @@
 }
 
 .loading-box {
-    background: white;
+    background: #5a2e16;
     padding: 30px 40px;
     border-radius: 20px;
     text-align: center;
+    color: white;
+}
+
+.loading-box h2,
+.loading-box p {
+    color: white;
 }
 
 .spinner {

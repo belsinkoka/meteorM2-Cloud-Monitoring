@@ -321,19 +321,11 @@ def dashboard():
         with open(status_path) as f:
             status = f.read().strip()
 
-    # Cari file IR terbaru
-    ir_file = None
-    image_extensions = (".png", ".jpg", ".jpeg")
-    files = [
-        f for f in os.listdir(DATA_FOLDER)
-        if f.lower().endswith(image_extensions) and not f.startswith("cb_")
-    ]
-    if files:
-        files.sort(
-            key=lambda x: os.path.getmtime(os.path.join(DATA_FOLDER, x)),
-            reverse=True,
-        )
-        ir_file = files[0]
+    # Gunakan file tetap
+    ir_file = "satellite_latest.png"
+
+    if not os.path.exists(os.path.join(DATA_FOLDER, ir_file)):
+        ir_file = None
 
     # Hasil deteksi CB
     cb_file = (

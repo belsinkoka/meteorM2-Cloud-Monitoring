@@ -170,6 +170,9 @@ def detect_once():
 
         tif_path = os.path.join(DATA_FOLDER, "input.tif")
 
+        print("START DETECTION")
+        print("INPUT EXISTS:", os.path.exists(tif_path))
+
         import deteksi_cb
         png_path = deteksi_cb.convert_tif_to_png(tif_path)
 
@@ -332,9 +335,6 @@ def dashboard():
     if os.path.exists(satellite_path):
         ir_file = "satellite_latest.png"
 
-    if not os.path.exists(os.path.join(DATA_FOLDER, ir_file)):
-        ir_file = None
-
     # Hasil deteksi CB
     cb_file = (
         "cb_latest.png"
@@ -395,7 +395,12 @@ def upload_tif():
         filename = secure_filename(file.filename)
         filepath = os.path.join(UPLOAD_FOLDER, filename)
         file.save(filepath)
-        os.rename(filepath, os.path.join(UPLOAD_FOLDER, "input.tif"))
+        input_path = os.path.join(UPLOAD_FOLDER, "input.tif")
+
+        if os.path.exists(input_path):
+            os.remove(input_path)
+
+        os.rename(filepath, input_path)
 
         detect_once()
         

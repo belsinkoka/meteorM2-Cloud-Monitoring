@@ -33,12 +33,12 @@
                 <h1>Meteor-M2 Monitoring Cuaca</h1>
 
                 <p>
-                    Dashboard monitoring cuaca berbasis citra satelit untuk mendeteksi awan Cumulonimbus secara
-                    real-time,
+                    Dashboard monitoring cuaca berbasis citra satelit Meteor M2 yang dilengkapi
+                    deteksi otomatis awan Cumulonimbus menggunakan YOLOv8 secara real-time.
                 </p>
                 <p>
-                    mendukung keselamatan dan pengambilan keputusan bagi nelayan serta Air Traffic Control
-                    (ATC) di bandara.
+                    Mendukung keselamatan dan pengambilan keputusan bagi nelayan sebelum berlayar
+                    serta Air Traffic Control (ATC) dalam memandu pilot menghindari area cuaca ekstrem.
                 </p>
 
                 <a href="{{ url_for('dashboard') }}" class="hero-button">
@@ -52,22 +52,22 @@
             <div class="section-content fade">
                 <h2>🌦 Monitoring Cuaca</h2>
                 <p>
-                    Monitoring cuaca merupakan proses observasi atmosfer secara kontinu
-                    untuk menganalisis dinamika awan, suhu, kelembapan, tekanan udara,
-                    serta pola sirkulasi angin. Sistem monitoring modern memanfaatkan
-                    data satelit, radar cuaca, dan sensor permukaan untuk menghasilkan
-                    informasi real-time.
+                    Monitoring cuaca merupakan proses observasi atmosfer secara kontinu untuk
+                    menganalisis dinamika awan, suhu, kelembapan, tekanan udara, serta pola
+                    sirkulasi angin. Sistem ini memanfaatkan citra satelit Meteor M2-3 dan M2-4
+                    pada frekuensi 137,9 MHz sebagai sumber data utama.
                 </p>
                 <p>
-                    Dalam sistem berbasis satelit, citra inframerah (IR) digunakan untuk
-                    mengestimasi suhu puncak awan. Awan dengan suhu puncak yang lebih
-                    dingin umumnya menunjukkan pertumbuhan vertikal yang kuat, yang
-                    sering dikaitkan dengan aktivitas konvektif intens.
+                    Citra satelit dalam format GeoTIFF berisi informasi nilai digital number (DN)
+                    uint16 yang merepresentasikan intensitas radiasi pada setiap piksel. Nilai DN
+                    yang lebih tinggi pada area awan mengindikasikan puncak awan yang lebih
+                    dingin dan tinggi, yang umumnya dikaitkan dengan aktivitas konvektif intens
+                    seperti awan Cumulonimbus.
                 </p>
                 <p>
-                    Monitoring secara berkala memungkinkan deteksi dini potensi
-                    cuaca ekstrem sehingga dapat mendukung sistem peringatan dini
-                    dan mitigasi risiko bencana.
+                    Monitoring secara berkala memungkinkan deteksi dini potensi cuaca ekstrem
+                    sehingga dapat mendukung sistem peringatan dini bagi nelayan, operator
+                    penerbangan, dan masyarakat umum.
                 </p>
             </div>
         </section>
@@ -77,22 +77,22 @@
             <div class="section-content fade">
                 <h2>⛈ Awan Cumulonimbus (CB)</h2>
                 <p>
-                    Awan Cumulonimbus (CB) adalah awan konvektif vertikal yang
-                    berkembang dari lapisan rendah hingga mencapai tropopause.
-                    Awan ini dapat memiliki tinggi lebih dari 10–15 km dan
-                    sering ditandai dengan bentuk landasan (anvil).
+                    Awan Cumulonimbus (CB) adalah awan konvektif vertikal yang berkembang
+                    dari lapisan rendah hingga mencapai tropopause. Awan ini dapat memiliki
+                    tinggi lebih dari 10–15 km dan sering ditandai dengan bentuk landasan (anvil)
+                    di puncaknya.
                 </p>
                 <p>
-                    CB terbentuk akibat proses konveksi kuat ketika udara lembap
-                    naik secara cepat (updraft). Pendinginan adiabatik menyebabkan
-                    kondensasi uap air dan pelepasan panas laten, yang memperkuat
-                    proses konvektif tersebut.
+                    CB terbentuk akibat proses konveksi kuat ketika udara lembap naik secara
+                    cepat (updraft). Pendinginan adiabatik menyebabkan kondensasi uap air dan
+                    pelepasan panas laten, yang memperkuat proses konvektif tersebut. Suhu
+                    puncak awan CB tropis dapat mencapai −80 °C hingga −90 °C.
                 </p>
                 <p>
-                    Dampak yang dapat ditimbulkan meliputi hujan lebat, badai petir,
-                    angin kencang, hujan es, hingga potensi puting beliung.
-                    Oleh karena itu, deteksi CB secara real-time sangat penting
-                    dalam sistem monitoring cuaca operasional.
+                    Dampak yang dapat ditimbulkan meliputi hujan lebat, badai petir, angin
+                    kencang, turbulensi parah pada lintasan pesawat, gelombang tinggi di laut,
+                    hingga potensi puting beliung. Oleh karena itu, deteksi CB secara real-time
+                    sangat penting untuk keselamatan operasional maritim dan penerbangan.
                 </p>
             </div>
         </section>
@@ -100,57 +100,57 @@
         <!-- SECTION 4 -->
         <section class="full-section section-parameter">
             <div class="section-content fade">
-                <h2>📊 Parameter dan Metode Identifikasi</h2>
+                <h2>📊 Metode Deteksi Otomatis</h2>
 
                 <p>
-                    Sistem deteksi awan Cumulonimbus (CB) pada aplikasi ini
-                    menggunakan pendekatan berbasis <strong>Machine Learning (ML)</strong>
-                    dan <strong>Artificial Intelligence (AI)</strong> dengan memanfaatkan
-                    citra satelit sebagai input utama. Model yang digunakan telah dilatih
-                    untuk mengenali karakteristik awan konvektif berdasarkan pola visual
-                    dan distribusi suhu pada citra.
+                    Sistem deteksi awan Cumulonimbus pada aplikasi ini menggunakan model
+                    <strong>YOLOv8</strong> (You Only Look Once versi 8), arsitektur
+                    <em>deep learning</em> untuk deteksi objek yang dilatih khusus dengan
+                    citra satelit Meteor M2 yang dianotasi manual.
                 </p>
 
                 <ul>
                     <li>
-                        <strong>Model Prediksi Berbasis AI</strong> -
-                        Menggunakan model deep learning untuk mengklasifikasikan
-                        setiap bagian citra sebagai awan CB atau non-CB berdasarkan
-                        pola citra yang telah dipelajari selama proses pelatihan.
+                        <strong>Model YOLOv8 (best.pt)</strong> — Dilatih dengan 4.346
+                        instance anotasi citra dan mencapai mean Average Precision
+                        (mAP@0.5) sebesar 0,427 dengan F1-score 0,46. Model
+                        mengidentifikasi area awan CB pada citra GeoTIFF secara otomatis.
                     </li>
 
                     <li>
-                        <strong>Confidence Score</strong> -
-                        Menunjukkan tingkat keyakinan model AI terhadap hasil
-                        deteksi awan CB dalam bentuk persentase probabilitas.
+                        <strong>Klasifikasi Tiga Tingkat</strong> — Hasil deteksi
+                        diklasifikasikan berdasarkan nilai <em>confidence</em>:
+                        <span style="color:#ff6b6b;"><strong>STRONG</strong> (≥32%, merah)</span>,
+                        <span style="color:#ffd166;"><strong>MODERATE</strong> (20-31%, kuning)</span>,
+                        dan <span style="color:#06d6a0;"><strong>WEAK</strong> (&lt;20%, hijau)</span>.
                     </li>
 
                     <li>
-                        <strong>Brightness Temperature</strong> -
-                        Digunakan sebagai indikator suhu puncak awan, dimana
-                        nilai suhu yang lebih rendah mengindikasikan awan
-                        konvektif yang berkembang secara vertikal.
+                        <strong>Kalibrasi Suhu DN Uint16</strong> — Suhu puncak awan
+                        diestimasi langsung dari nilai DN uint16 menggunakan formula
+                        T (°C) = 60,0 + (DN/65.280) × (−100,0 − 60,0), dengan rentang
+                        +60 °C hingga −100 °C mengikuti skala standar JMA/BMKG.
                     </li>
 
                     <li>
-                        <strong>Sliding Window Analysis</strong> -
-                        Citra satelit dibagi menjadi beberapa bagian (tile)
-                        untuk dianalisis secara lokal oleh model AI sehingga
-                        deteksi dapat dilakukan secara lebih detail.
+                        <strong>Ekstraksi Suhu Persentil-5</strong> — Untuk setiap
+                        <em>bounding box</em>, suhu puncak diambil dari persentil ke-5
+                        nilai DN pada Region of Interest, merepresentasikan area dengan
+                        suhu terdingin (puncak konveksi awan).
                     </li>
 
                     <li>
-                        <strong>Clustering dan Bounding Box</strong> -
-                        Hasil deteksi dari beberapa tile yang berdekatan
-                        dikelompokkan menggunakan metode clustering untuk
-                        membentuk area awan CB yang lebih representatif.
+                        <strong>Integrasi Peta dan Bandara</strong> — Hasil deteksi
+                        ditampilkan pada peta interaktif Leaflet.js dengan marker untuk
+                        10 bandara utama Indonesia, dilengkapi referensi citra BMKG
+                        Himawari-9 yang diperbarui otomatis setiap 5 menit.
                     </li>
                 </ul>
 
                 <p>
-                    Kombinasi antara model AI dan analisis spasial ini memungkinkan
-                    sistem untuk mendeteksi awan Cumulonimbus secara lebih akurat
-                    dibandingkan metode berbasis threshold konvensional.
+                    Kombinasi <em>deep learning</em>, kalibrasi suhu berbasis DN uint16,
+                    dan visualisasi spasial ini memungkinkan deteksi awan CB yang akurat
+                    sekaligus mudah dipahami pengguna tanpa keahlian khusus.
                 </p>
             </div>
         </section>
@@ -158,22 +158,27 @@
         <!-- SECTION 5 -->
         <section class="full-section section-meteor">
             <div class="section-content fade">
-                <h2>🛰 Satelit Meteor M2</h2>
+                <h2>🛰 Satelit Meteor M2 &amp; Perangkat Penerima</h2>
                 <p>
-                    Meteor-M2 adalah satelit observasi bumi milik Rusia
-                    yang beroperasi pada orbit polar sun-synchronous,
-                    memungkinkan cakupan global secara periodik.
+                    Meteor-M2 adalah satelit observasi cuaca milik Roscosmos (Rusia) yang
+                    beroperasi pada orbit polar <em>sun-synchronous</em>. Penelitian ini
+                    menggunakan dua satelit aktif yang melintas di atas Indonesia, yaitu
+                    Meteor M2-3 dan M2-4, yang memancarkan data citra cuaca pada
+                    frekuensi 137,9 MHz menggunakan modulasi LRPT (<em>Low Rate Picture
+                        Transmission</em>).
                 </p>
                 <p>
-                    Satelit ini dilengkapi dengan sensor MSU-MR (Multispectral Scanner Unit),
-                    yang mampu merekam citra dalam spektrum visible dan inframerah.
-                    Kanal inframerah sangat penting dalam analisis suhu puncak awan
-                    dan deteksi fenomena konvektif.
+                    Sistem penerima terdiri dari antena V-Dipole 137 MHz (panjang elemen
+                    53,4 cm, sudut 120°), <em>Low Noise Amplifier</em> SPF5189Z dengan
+                    gain 20 dB, RTL-SDR V4 sebagai SDR <em>receiver</em>, dan perangkat
+                    lunak <em>open-source</em> SatDump untuk dekoding sinyal LRPT menjadi
+                    citra GeoTIFF.
                 </p>
                 <p>
-                    Dengan menggunakan RTL-SDR sebagai penerima sinyal,
-                    data citra dapat diunduh secara langsung dan diproses
-                    secara mandiri untuk keperluan monitoring cuaca real-time.
+                    Citra GeoTIFF hasil dekoding kemudian diproses oleh aplikasi web
+                    berbasis Flask yang di-<em>deploy</em> pada platform cloud Railway,
+                    sehingga sistem dapat diakses secara online kapan saja dan dari mana
+                    saja melalui browser tanpa instalasi perangkat lunak khusus.
                 </p>
             </div>
         </section>
@@ -211,3 +216,5 @@
         faders.forEach(el => observer.observe(el));
     </script>
 </body>
+
+</html>

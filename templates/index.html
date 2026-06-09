@@ -195,6 +195,11 @@
                 </button>
 
                 <!-- LEGEND -->
+                <!-- ============================================= -->
+                <!-- GANTI BLOK LEGEND LAMA DI index.html DENGAN INI -->
+                <!-- Cari: <div id="legend-box" class="legend-box hidden"> -->
+                <!-- ============================================= -->
+
                 <div id="legend-box" class="legend-box hidden">
                     <h4>📊 Confidence CB</h4>
 
@@ -210,7 +215,7 @@
                         <span class="dot"></span>
                         <div>
                             <b>Moderate</b>
-                            <small>20–39%</small>
+                            <small>30 – 39%</small>
                         </div>
                     </div>
 
@@ -218,10 +223,9 @@
                         <span class="dot"></span>
                         <div>
                             <b>Weak</b>
-                            <small>&lt; 20%</small>
+                            <small>20 – 29%</small>
                         </div>
                     </div>
-
 
                 </div>
             </div>
@@ -525,7 +529,7 @@
                 let color = "green";
 
                 if (confidence >= 40) color = "red";
-                else if (confidence >= 20) color = "yellow";
+                else if (confidence >= 30) color = "yellow";
 
                 let marker = L.marker([ap.lat, ap.lon], {
                     icon: smallAirportIcon

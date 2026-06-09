@@ -27,9 +27,14 @@ MAX_WIDTH = 2000
 # Hanya CB dengan confidence ≥ MIN_CONF_THRESHOLD yang
 # akan ditampilkan di output gambar dan tabel.
 #
-#   0.20 → tampilkan WEAK, MODERATE, STRONG
-#   0.20 → khusus MODERATE ke atas (default)
-#   0.32 → hanya STRONG
+# Klasifikasi intensitas (lihat fungsi classify_intensity):
+#   ≥ 40%      → STRONG   (merah)
+#   30% - 39%  → MODERATE (kuning)
+#   20% - 29%  → WEAK     (hijau)
+#
+# MIN_CONF_THRESHOLD = 0.20 → tampilkan WEAK, MODERATE, STRONG
+#                    = 0.30 → MODERATE & STRONG saja
+#                    = 0.40 → STRONG saja
 #
 MIN_CONF_THRESHOLD = 0.20   # ← ubah di sini
 
@@ -52,6 +57,13 @@ os.makedirs(DATA_FOLDER, exist_ok=True)
 #   Bali       (DN≈11955) → +30.7°C ✓ (SST pesisir)
 #   CB kuat    (DN≈60000) →  ~-87°C ✓ (puncak CB tropis)
 #
+# CATATAN PENGAMBILAN SUHU:
+#   Citra LRPT Meteor M2 mengandung garis noise & tepi putih dengan
+#   DN ekstrem (~65280). Piksel ber-DN di atas DN_NOISE_CUTOFF dibuang
+#   dulu, lalu suhu diambil dari MEDIAN (persentil-50) piksel awan yang
+#   tersisa. Median dipilih agar suhu merepresentasikan rata-rata area
+#   awan dalam bounding box, bukan hanya puncak terdingin ekstrem.
+#
 T_WARM = 60.0
 T_COLD = -100.0
 DN_MAX = 65280.0
@@ -69,15 +81,37 @@ def dn_to_celsius(dn_uint16: np.ndarray) -> np.ndarray:
 print("Loading YOLOv8 model...")
 model = YOLO(YOLO_MODEL_PATH)
 
+# ★ BARU: konfirmasi daftar kelas model (mis. {0: 'CB', 1: 'nonCB'})
+print(f"Kelas model: {model.names}")
+
+# ★ BARU: auto-deteksi index kelas 'CB' dari model.
+#   Aman dari urutan data.yaml — tidak peduli CB di index 0 atau 1.
+CB_CLASS_ID = None
+for idx, name in model.names.items():
+    if str(name).strip().upper() == "CB":
+        CB_CLASS_ID = idx
+        break
+
+if CB_CLASS_ID is None:
+    CB_CLASS_ID = 0   # fallback kalau nama kelas bukan persis "CB"
+    print(f"PERINGATAN: kelas 'CB' tidak ditemukan di model.names, "
+          f"memakai default index {CB_CLASS_ID}. "
+          f"Cek kembali nama kelas di data.yaml!")
+
+print(f"CB class ID terpilih = {CB_CLASS_ID}")
+
 
 # =====================================================
 # INTENSITY CLASSIFICATION
 # =====================================================
 
 def classify_intensity(conf: float) -> str:
-    if conf >= 0.32:
+    # STRONG  : conf >= 40%  (CB sangat kuat)
+    # MODERATE: 30% - 39%    (CB sedang)
+    # WEAK    : 20% - 29%    (CB lemah / berkembang)
+    if conf >= 0.40:
         return "STRONG"
-    elif conf >= 0.2:
+    elif conf >= 0.30:
         return "MODERATE"
     else:
         return "WEAK"
@@ -106,8 +140,18 @@ def convert_tif_to_png(tif_path: str) -> str:
             img_rgb = np.stack(img_bands, axis=2)
 
         img_bgr  = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)
+
+        # File 1: untuk YOLO (solid, 3 channel)
         png_path = os.path.join(DATA_FOLDER, "satellite_latest.png")
         cv2.imwrite(png_path, img_bgr)
+
+        # File 2: untuk overlay peta Leaflet (hitam → transparan)
+        BLACK_THRESHOLD = 10
+        bgra = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2BGRA)
+        black_mask = np.all(img_bgr < BLACK_THRESHOLD, axis=2)
+        bgra[black_mask, 3] = 0
+        overlay_path = os.path.join(DATA_FOLDER, "satellite_overlay.png")
+        cv2.imwrite(overlay_path, bgra)
 
         bounds_file = os.path.join(DATA_FOLDER, "map_bounds.txt")
         with open(bounds_file, "w") as f:
@@ -157,8 +201,20 @@ def extract_temperature_for_box(
     if len(valid) == 0:
         valid = roi_raw.flatten()
 
-    # Persentil ke-5 = area paling dingin = puncak CB
-    dn_coldest = float(np.percentile(valid, 5))
+    # ── Buang piksel noise ber-DN ekstrem ──────────────────────
+    # Garis noise/tepi putih hasil dekoding LRPT punya DN sangat
+    # tinggi (mendekati 65280) yang keliru terbaca sebagai -100°C.
+    # Kita buang piksel di atas DN_NOISE_CUTOFF sebelum hitung suhu.
+    DN_NOISE_CUTOFF = 62000           # ≈ -92°C ke atas dianggap noise
+    cloud = valid[valid < DN_NOISE_CUTOFF]
+    if len(cloud) == 0:               # kalau semua kepotong, pakai data asli
+        cloud = valid
+
+    # Dari piksel awan yang tersisa, ambil persentil ke-50 (median)
+    # sebagai estimasi suhu rata-rata area awan. Median lebih
+    # representatif terhadap keseluruhan awan dalam bounding box
+    # dibanding persentil tinggi yang hanya menangkap puncak ekstrem.
+    dn_coldest = float(np.percentile(cloud, 50))
     temp_c     = float(dn_to_celsius(np.array([dn_coldest]))[0])
 
     return round(temp_c, 1), "raw_ir"
@@ -196,10 +252,16 @@ def detect_cb(image_path: str) -> int:
         if boxes is None:
             continue
         for box in boxes:
+            # ★ BARU: filter kelas — hanya proses kelas CB, abaikan nonCB
+            cls = int(box.cls[0])
+            if cls != CB_CLASS_ID:
+                print(f"  SKIP (kelas={cls} '{model.names.get(cls, '?')}', bukan CB)")
+                continue
+
             x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
             conf = float(box.conf[0])
             x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
-            print(f"RAW DETECTION — conf={conf:.3f}")
+            print(f"RAW DETECTION — CB conf={conf:.3f}")
             cluster_boxes.append((x1, y1, x2 - x1, y2 - y1, conf))
 
     cb_count = 0

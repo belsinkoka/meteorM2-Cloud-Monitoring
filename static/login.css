@@ -34,7 +34,9 @@ body::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(160deg, rgba(63, 31, 16, 0.6), rgba(0, 0, 0, 0.62));
+    /* overlay gelap netral (bukan coklat) agar foto tetap jernih
+       dan kartu login tetap kontras */
+    background: rgba(0, 0, 0, 0.45);
     z-index: -1;
 }
 

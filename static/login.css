@@ -1,23 +1,40 @@
+/* =========================================================
+   LOGIN / REGISTER — Meteor M2
+   Theme: "Ground Station"
+   Hanya CSS. Struktur HTML & JS tidak diubah.
+   ========================================================= */
+
+:root {
+    --soil-900: #3F1F10;
+    --soil-700: #512E1B;
+    --soil-500: #5A2E16;
+    --sky-400: #8FB3C3;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* {
+    box-sizing: border-box;
+}
+
 /* ===== BACKGROUND ===== */
 body {
     margin: 0;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Poppins', "Segoe UI", sans-serif;
     background: url("/static/images/bg-login.jpeg") no-repeat center center fixed;
     background-size: cover;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-
+    min-height: 100vh;
+    padding: 24px;
     position: relative;
 }
 
-/* Overlay gelap supaya teks tetap jelas */
 body::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.55);
+    background: linear-gradient(160deg, rgba(63, 31, 16, 0.6), rgba(0, 0, 0, 0.62));
     z-index: -1;
 }
 
@@ -33,89 +50,122 @@ body::before {
 
 /* ===== CARD ===== */
 .login-card {
-    background-color: #8faebb;
-    /* biru soft seperti card dashboard */
-    padding: 50px 40px;
-    border-radius: 20px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
-    width: 380px;
+    background: linear-gradient(180deg, rgba(156, 190, 205, 0.96), rgba(143, 179, 195, 0.94));
+    backdrop-filter: blur(10px);
+    padding: 48px 38px;
+    border-radius: 22px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    width: 100%;
+    max-width: 400px;
     text-align: center;
     position: relative;
     z-index: 10;
+    overflow: hidden;
+}
+
+.login-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--soil-700), var(--sky-400), var(--soil-700));
 }
 
 /* ===== TITLE ===== */
 .login-card h1 {
     font-family: 'Orbitron', sans-serif;
-    font-size: 32px;
+    font-size: clamp(28px, 7vw, 34px);
     letter-spacing: 2px;
-    color: #ffffff;
-    margin-bottom: 5px;
+    color: var(--soil-900);
+    margin: 0 0 6px;
+    text-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
 }
 
 .login-card h2 {
     font-family: 'Poppins', sans-serif;
     font-weight: 300;
-    color: #dddddd;
-    margin-bottom: 30px;
+    color: var(--soil-700);
+    margin: 0 0 28px;
+    font-size: 16px;
 }
 
 /* ===== INPUT ===== */
 .login-card input,
 .password-wrapper input {
     width: 100%;
-    padding: 12px;
+    padding: 13px 14px;
     margin-bottom: 15px;
-    border: none;
-    border-radius: 8px;
+    border: 1px solid rgba(63, 31, 16, 0.15);
+    border-radius: 10px;
     font-size: 14px;
+    background: rgba(255, 255, 255, 0.92);
+    transition: box-shadow 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+.login-card input:focus,
+.password-wrapper input:focus {
+    outline: none;
+    border-color: var(--soil-500);
+    box-shadow: 0 0 0 3px rgba(90, 46, 22, 0.18);
 }
 
 /* ===== BUTTON ===== */
 .login-card button {
     width: 100%;
-    padding: 12px;
-    background-color: #5a2e16;
-    /* topbar brown */
-    color: white;
+    padding: 13px;
+    background: linear-gradient(135deg, var(--soil-500), var(--soil-700));
+    color: #fff;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 15px;
+    font-weight: 600;
     cursor: pointer;
-    transition: 0.3s;
+    box-shadow: 0 8px 18px rgba(63, 31, 16, 0.3);
+    transition: transform 0.2s var(--ease), filter 0.2s var(--ease);
 }
 
 .login-card button:hover {
-    background-color: #3f1f10;
+    transform: translateY(-2px);
+    filter: brightness(1.08);
+}
+
+.login-card button:active {
+    transform: scale(0.97);
 }
 
 /* ===== ERROR ===== */
 .error {
-    color: red;
+    color: #b00020;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 8px 12px;
+    border-radius: 8px;
     font-size: 13px;
     margin-bottom: 15px;
 }
 
-/*====== REGISTER ======*/
-
+/* ===== REGISTER LINK ===== */
 .login-register-text {
-    margin-top: 20px;
+    margin-top: 22px;
     text-align: center;
-    color: #e5e5e5;
+    color: var(--soil-700);
     font-size: 14px;
 }
 
 .login-register-text a {
-    color: #ffffff;
+    color: var(--soil-900);
     text-decoration: underline;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
 }
 
 .login-register-text a:hover {
-    color: #d0e8ff;
+    color: var(--soil-500);
 }
 
+/* ===== PASSWORD TOGGLE ===== */
 .password-wrapper {
     position: relative;
     width: 100%;
@@ -123,9 +173,24 @@ body::before {
 
 .toggle-password {
     position: absolute;
-    right: -10px;
-    top: 50%;
+    right: 12px;
+    top: 21px;
     transform: translateY(-50%);
     cursor: pointer;
     font-size: 16px;
+    user-select: none;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 420px) {
+    .login-card {
+        padding: 38px 24px;
+    }
+}
+
+/* ===== AKSESIBILITAS ===== */
+:focus-visible {
+    outline: 3px solid var(--sky-400);
+    outline-offset: 2px;
+    border-radius: 6px;
 }

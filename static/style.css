@@ -1,74 +1,125 @@
-/* =========================================
-   GLOBAL RESET
-========================================= */
+/* =========================================================
+   STYLE — Global (dipakai semua halaman)
+   Theme: "Ground Station"
+   Berisi reset, hamburger, sidebar, overlay, topbar dasar.
+   Hanya CSS. Struktur HTML & JS tidak diubah.
+   ========================================================= */
 
+:root {
+    --soil-900: #3F1F10;
+    --soil-700: #512E1B;
+    --soil-500: #5A2E16;
+    --sand-300: #C9A98A;
+    --sky-400: #8FB3C3;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --shadow-lift: 0 18px 44px rgba(40, 23, 9, 0.28);
+}
+
+/* =========================================================
+   RESET
+   ========================================================= */
 * {
     box-sizing: border-box;
 }
 
 body {
     margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
 }
 
-/* =========================================
+/* =========================================================
+   TOPBAR (dasar — dapat ditimpa per halaman)
+   ========================================================= */
+.topbar {
+    background: linear-gradient(180deg, var(--soil-700), var(--soil-900));
+    padding: 14px 20px;
+    color: #fff;
+}
+
+/* =========================================================
    HAMBURGER
-========================================= */
-
+   ========================================================= */
 .hamburger {
-    font-size: 26px;
+    position: fixed;
+    top: 12px;
+    left: 14px;
+    z-index: 15000;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #fff;
+    background: rgba(63, 31, 16, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 12px;
     cursor: pointer;
-    color: white;
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    z-index: 9999;
-    background: transparent;
-    border-radius: 6px;
+    backdrop-filter: blur(6px);
+    transition: transform 0.2s var(--ease), background 0.2s var(--ease);
 }
 
-/* SIDEBAR */
+.hamburger:hover {
+    transform: scale(1.05);
+    background: rgba(63, 31, 16, 0.75);
+}
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
 .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
+    height: 100%;
     width: 0;
-    height: 100%;
-    background-color: #5c2d0c;
-    padding-top: 60px;
-    overflow-x: hidden;
-    transition: 0.3s;
-    z-index: 3000;
-    /* HARUS PALING TINGGI */
-}
-
-/* OVERLAY */
-.overlay {
     position: fixed;
-    display: none;
-    width: 100%;
-    height: 100%;
     top: 0;
     left: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 2000;
-    /* LEBIH RENDAH dari sidebar */
-}
-
-.sidebar.active {
-    left: 0;
+    background: linear-gradient(180deg, var(--soil-700), var(--soil-900));
+    overflow-x: hidden;
+    transition: width 0.32s var(--ease);
+    padding-top: 64px;
+    z-index: 15000;
+    box-shadow: var(--shadow-lift);
 }
 
 .sidebar a {
-    display: block;
-    color: white;
-    padding: 15px 20px;
+    padding: 14px 26px;
     text-decoration: none;
-    font-size: 18px;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.85);
+    display: block;
+    border-left: 3px solid transparent;
+    transition: background 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease);
+    white-space: nowrap;
 }
 
 .sidebar a:hover {
-    background-color: #8B6F47;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border-left-color: var(--sky-400);
+}
+
+/* tombol close (✖) di paling atas */
+.sidebar a:first-of-type {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    left: auto;
+    padding: 0;
+    font-size: 24px;
+    border: none;
+    width: auto;
+}
+
+.sidebar a:first-of-type:hover {
+    background: transparent;
+    color: #ff8a6a;
+    border-left-color: transparent;
+}
+
+/* dukungan kelas .active jika dipakai JS tertentu */
+.sidebar.active {
+    width: 250px;
 }
 
 .close-btn {
@@ -77,52 +128,35 @@ body {
     right: 20px;
     font-size: 22px;
     cursor: pointer;
-    color: white;
+    color: #fff;
 }
 
-.topbar {
-    background-color: #5A2D0C;
-    padding: 15px;
-}
-
-.hamburger {
-    font-size: 25px;
-    color: white;
-    cursor: pointer;
-}
-
-.sidebar {
-    height: 100%;
-    width: 0;
-    position: fixed;
-    top: 0;
-    left: 0;
-    background-color: #512E1B;
-    overflow-x: hidden;
-    transition: 0.3s;
-    padding-top: 80px;
-    z-index: 15000;
-}
-
-.sidebar a {
-    padding: 15px 25px;
-    text-decoration: none;
-    font-size: 18px;
-    color: white;
-    display: block;
-}
-
-.sidebar a:hover {
-    background-color: #735D42;
-}
-
+/* =========================================================
+   OVERLAY
+   ========================================================= */
 .overlay {
     position: fixed;
     display: none;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    background: rgba(0, 0, 0, 0.3);
+    inset: 0;
+    background: rgba(20, 11, 4, 0.5);
+    backdrop-filter: blur(2px);
     z-index: 14000;
+}
+
+/* =========================================================
+   AKSESIBILITAS
+   ========================================================= */
+:focus-visible {
+    outline: 3px solid var(--sky-400);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+    }
 }

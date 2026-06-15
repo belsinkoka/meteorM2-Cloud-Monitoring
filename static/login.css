@@ -52,7 +52,6 @@ body::before {
 
 /* ===== CARD ===== */
 .login-card {
-    background: linear-gradient(180deg, rgba(156, 190, 205, 0.96), rgba(143, 179, 195, 0.94));
     backdrop-filter: blur(10px);
     padding: 48px 38px;
     border-radius: 22px;

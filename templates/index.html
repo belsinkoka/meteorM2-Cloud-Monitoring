@@ -195,11 +195,6 @@
                 </button>
 
                 <!-- LEGEND -->
-                <!-- ============================================= -->
-                <!-- GANTI BLOK LEGEND LAMA DI index.html DENGAN INI -->
-                <!-- Cari: <div id="legend-box" class="legend-box hidden"> -->
-                <!-- ============================================= -->
-
                 <div id="legend-box" class="legend-box hidden">
                     <h4>📊 Confidence CB</h4>
 
@@ -271,6 +266,18 @@
 
             <div class="card full">
                 <h3>Citra Satelit yang diambil dari Jakarta</h3>
+
+                <!-- LEGEND MARKER PETA -->
+                <div class="map-legend">
+                    <span class="map-legend-item">
+                        <img src="{{ url_for('static', filename='images/marker-airport.png') }}" alt="bandara">
+                        Bandara
+                    </span>
+                    <span class="map-legend-item">
+                        <img src="{{ url_for('static', filename='images/marker-seaport.png') }}" alt="pelabuhan">
+                        Pelabuhan
+                    </span>
+                </div>
 
                 <div id="satellite-map"></div>
 
@@ -344,7 +351,7 @@
         var map = L.map('satellite-map', {
             zoomControl: true,
             scrollWheelZoom: false
-        }).setView([-2, 110], 5);
+        }).setView([-3.0, 108.0], 5);
 
         var cbData = {{ cb_table | tojson }};
 
@@ -370,10 +377,11 @@
             var satOverlay = L.imageOverlay(
                 imageUrl,
                 imageBounds,
-                { opacity: 0.5 }
+                { opacity: 0.6 }
             ).addTo(map);
 
-            map.fitBounds(imageBounds);
+            // Fokus tampilan pada Jawa, Sumatra, dan Kalimantan
+            map.setView([-3.0, 108.0], 5);
         }
     </script>
 
@@ -386,22 +394,49 @@
             return "☀ Aman";
         }
 
+        // ---------- IKON KUSTOM ----------
+        var airportIcon = L.icon({
+            iconUrl: "{{ url_for('static', filename='images/marker-airport.png') }}",
+            iconSize: [20, 27],
+            iconAnchor: [10, 27],
+            popupAnchor: [0, -24]
+        });
+
+        var seaportIcon = L.icon({
+            iconUrl: "{{ url_for('static', filename='images/marker-seaport.png') }}",
+            iconSize: [20, 27],
+            iconAnchor: [10, 27],
+            popupAnchor: [0, -24]
+        });
+
+        // ---------- DATA BANDARA ----------
         var airports = [
             // JAWA
             { name: "Soekarno-Hatta (CGK)", lat: -6.1256, lon: 106.6559 },
-            { name: "Halim (HLP)", lat: -6.2666, lon: 106.891 },
-            { name: "Juanda (SUB)", lat: -7.3798, lon: 112.787 },
-            { name: "Adi Soemarmo (SOC)", lat: -7.5161, lon: 110.756 },
-            { name: "Ahmad Yani (SRG)", lat: -6.9727, lon: 110.375 },
-
+            { name: "Halim Perdanakusuma (HLP)", lat: -6.2666, lon: 106.8910 },
+            { name: "Juanda (SUB)", lat: -7.3798, lon: 112.7870 },
+            { name: "Adi Soemarmo (SOC)", lat: -7.5161, lon: 110.7560 },
+            { name: "Ahmad Yani (SRG)", lat: -6.9727, lon: 110.3750 },
             // SUMATRA
-            { name: "Kualanamu (KNO)", lat: 3.642, lon: 98.885 },
-            { name: "Minangkabau (PDG)", lat: -0.786, lon: 100.281 },
-            { name: "Sultan Mahmud Badaruddin II (PLM)", lat: -2.898, lon: 104.699 },
-            { name: "Hang Nadim (BTH)", lat: 1.121, lon: 104.119 },
+            { name: "Kualanamu (KNO)", lat: 3.6420, lon: 98.8850 },
+            { name: "Minangkabau (PDG)", lat: -0.7860, lon: 100.2810 },
+            { name: "Sultan Mahmud Badaruddin II (PLM)", lat: -2.8980, lon: 104.6990 },
+            { name: "Hang Nadim (BTH)", lat: 1.1210, lon: 104.1190 },
+            // KALIMANTAN BARAT
+            { name: "Supadio (PNK)", lat: -0.1507, lon: 109.4040 },
+        ];
 
-            // KALBAR
-            { name: "Supadio (PNK)", lat: -0.1507, lon: 109.404 },
+        // ---------- DATA PELABUHAN (koordinat terverifikasi) ----------
+        var seaports = [
+            // JAWA
+            { name: "Pelabuhan Tanjung Priok", lat: -6.1040, lon: 106.8865 },  // Jakarta
+            { name: "Pelabuhan Tanjung Perak", lat: -7.1983, lon: 112.7228 },  // Surabaya
+            { name: "Pelabuhan Tanjung Emas", lat: -6.9470, lon: 110.4240 },  // Semarang
+            // SUMATRA
+            { name: "Pelabuhan Belawan", lat: 3.7831, lon: 98.6906 },  // Medan
+            { name: "Pelabuhan Teluk Bayur", lat: -0.9922, lon: 100.3720 },  // Padang
+            // KALIMANTAN BARAT
+            { name: "Pelabuhan Dwikora Pontianak", lat: -0.0263, lon: 109.3425 },  // Pontianak
         ];
 
         function getAirportWeather(lat, lon, cbData) {
@@ -505,7 +540,8 @@
                     });
                 }
 
-                // 🔥 OPTIONAL: refresh map marker (next step)
+                // refresh marker peta dengan data terbaru
+                updateMapMarkers();
 
             } catch (err) {
                 console.log("Realtime error:", err);
@@ -519,22 +555,13 @@
                 }
             });
 
+            // ---------- MARKER BANDARA ----------
             airports.forEach(ap => {
-
                 let result = getAirportWeather(ap.lat, ap.lon, cbData);
-
                 let confidence = result.confidence;
                 let temp = result.temp;
 
-                let color = "green";
-
-                if (confidence >= 40) color = "red";
-                else if (confidence >= 30) color = "yellow";
-
-                let marker = L.marker([ap.lat, ap.lon], {
-                    icon: smallAirportIcon
-                }).addTo(map);
-
+                let marker = L.marker([ap.lat, ap.lon], { icon: airportIcon }).addTo(map);
                 marker.bindPopup(`
         <b>✈️ ${ap.name}</b><br>
         📍 Lat: ${ap.lat}, Lon: ${ap.lon}<br>
@@ -543,14 +570,23 @@
         📊 Confidence: ${confidence.toFixed(1)}%
     `);
             });
-        }
 
-        var smallAirportIcon = L.icon({
-            iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-            iconSize: [14, 22],
-            iconAnchor: [7, 22],
-            popupAnchor: [1, -18]
-        });
+            // ---------- MARKER PELABUHAN ----------
+            seaports.forEach(sp => {
+                let result = getAirportWeather(sp.lat, sp.lon, cbData);
+                let confidence = result.confidence;
+                let temp = result.temp;
+
+                let marker = L.marker([sp.lat, sp.lon], { icon: seaportIcon }).addTo(map);
+                marker.bindPopup(`
+        <b>⚓ ${sp.name}</b><br>
+        📍 Lat: ${sp.lat}, Lon: ${sp.lon}<br>
+        🌡 Suhu Awan: ${temp !== null ? temp + "°C" : "Tidak ada CB"}<br>
+        🌊 Status Pelayaran: ${getRainStatus(confidence, temp)}<br>
+        📊 Confidence: ${confidence.toFixed(1)}%
+    `);
+            });
+        }
 
         updateMapMarkers();
 

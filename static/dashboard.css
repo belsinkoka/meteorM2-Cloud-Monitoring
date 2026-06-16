@@ -826,3 +826,35 @@ form[action*="save_data"] {
         animation: spin 1s linear infinite !important;
     }
 }
+
+/* ============================================= */
+/* GANTI BLOK .map-legend LAMA DI dashboard.css   */
+/* DENGAN BLOK INI (legend marker peta)           */
+/* ============================================= */
+
+.map-legend {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 5px 0 8px 0;
+    flex-wrap: wrap;
+}
+
+.map-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #512E1B;
+    background: rgba(255, 255, 255, 0.85);
+    padding: 2px 8px;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.map-legend-item img {
+    width: 9px;
+    height: 12px;
+    object-fit: contain;
+}

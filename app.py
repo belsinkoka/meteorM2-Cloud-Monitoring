@@ -12,6 +12,11 @@ import base64
 import requests
 import time
 
+# ★ Load modul deteksi (sekaligus model YOLOv8) SEKALI saat startup.
+#   Sebelumnya di-import di dalam detect_once() sehingga berisiko
+#   memicu proses berat berulang dan menyebabkan WORKER TIMEOUT.
+import deteksi_cb
+
 
 # =====================================================
 # 1. KONFIGURASI & KONSTANTA
@@ -173,7 +178,7 @@ def detect_once():
         print("START DETECTION")
         print("INPUT EXISTS:", os.path.exists(tif_path))
 
-        import deteksi_cb
+        # deteksi_cb sudah di-import di atas (model ter-load sekali).
         png_path = deteksi_cb.convert_tif_to_png(tif_path)
 
         print("PNG PATH:", png_path)
@@ -186,6 +191,12 @@ def detect_once():
 
     except Exception as e:
         print("Error:", e)
+        # tandai error agar UI tahu proses gagal
+        try:
+            with open(os.path.join(DATA_FOLDER, "status.txt"), "w") as f:
+                f.write("error")
+        except Exception:
+            pass
 
 
 # =====================================================
@@ -376,7 +387,7 @@ def upload_tif():
         for f in os.listdir(UPLOAD_FOLDER):
             if f.endswith(".tif") or f.endswith(".tiff"):
                 os.remove(os.path.join(UPLOAD_FOLDER, f))
-        
+
         # Hapus output lama
         old_outputs = [
             "satellite_latest.png",
@@ -385,7 +396,6 @@ def upload_tif():
             "cb_count.txt",
             "status.txt"
         ]
-
         for old_file in old_outputs:
             old_path = os.path.join(DATA_FOLDER, old_file)
             if os.path.exists(old_path):
@@ -402,9 +412,10 @@ def upload_tif():
 
         os.rename(filepath, input_path)
 
-        detect_once()
-        
-        time.sleep(2)
+        # ★ Jalankan deteksi di THREAD TERPISAH agar request HTTP segera
+        #   selesai dan tidak memicu WORKER TIMEOUT. Dashboard akan
+        #   memuat hasil lewat polling /api/latest_cb (tiap 5 detik).
+        threading.Thread(target=detect_once, daemon=True).start()
 
     return redirect(url_for("dashboard"))
 
@@ -417,6 +428,17 @@ def upload_tif():
 def api_latest_cb():
     cb_table = read_cb_table()
     return {"cb_table": cb_table, "count": len(cb_table)}
+
+
+@app.route("/api/status")
+def api_status():
+    """Status proses deteksi: idle / processing / done / error."""
+    status_path = os.path.join(DATA_FOLDER, "status.txt")
+    status = "idle"
+    if os.path.exists(status_path):
+        with open(status_path) as f:
+            status = f.read().strip()
+    return {"status": status}
 
 
 # =====================================================

@@ -11,8 +11,9 @@ from ultralytics import YOLO
 # KONFIGURASI
 # =====================================================
 
-SUPABASE_URL = "https://bkfudvtonbnnxlkbqiln.supabase.co"
-SUPABASE_KEY = "sb_publishable_JEDoEXBdMaAIU36seFlaNQ_rfV6z_eE"
+# >>> TANYA: koneksi-supabase / keamanan-kredensial / environment-variable
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://bkfudvtonbnnxlkbqiln.supabase.co")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "sb_publishable_JEDoEXBdMaAIU36seFlaNQ_rfV6z_eE")
 
 BASE_DIR        = os.path.dirname(os.path.abspath(__file__))
 DATA_FOLDER     = os.path.join(BASE_DIR, "data")

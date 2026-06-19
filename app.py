@@ -21,6 +21,7 @@ import deteksi_cb
 # =====================================================
 # 1. KONFIGURASI & KONSTANTA
 # =====================================================
+#TANYA: koneksi-supabase
 
 SUPABASE_URL = "https://bkfudvtonbnnxlkbqiln.supabase.co"
 SUPABASE_KEY = "sb_publishable_JEDoEXBdMaAIU36seFlaNQ_rfV6z_eE"
@@ -49,6 +50,7 @@ cities = [
 app = Flask(__name__)
 app.secret_key = "meteor_m2_secret_key"
 
+#TANYA: koneksi-supabase
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 os.makedirs(HISTORY_FOLDER, exist_ok=True)
@@ -155,7 +157,7 @@ def download_bmkg_image():
         print("Error download BMKG:", e)
     return False
 
-
+#TANYA: daemon-bmkg
 def auto_update_bmkg():
     while True:
         download_bmkg_image()
@@ -165,7 +167,7 @@ def auto_update_bmkg():
 # =====================================================
 # 5. LOGIKA DETEKSI
 # =====================================================
-
+#TANYA: thread-deteksi
 def detect_once():
     try:
         status_path = os.path.join(DATA_FOLDER, "status.txt")
@@ -215,7 +217,7 @@ threading.Thread(target=auto_update_bmkg, daemon=True).start()
 def root():
     return redirect(url_for("login"))
 
-
+#TANYA: verifikasi-login
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -246,7 +248,7 @@ def register():
 
         if len(password) < 8:
             return render_template("register.html", error="Password minimal 8 karakter")
-
+#TANYA: hash-password
         hashed_pw = generate_password_hash(password)
 
         res = supabase.table("users").select("*").eq("username", username).execute()
@@ -323,7 +325,7 @@ def bmkg_files(filename):
 # =====================================================
 # 10. DASHBOARD
 # =====================================================
-
+#TANYA: cek-session
 @app.route("/dashboard")
 def dashboard():
     if "user" not in session:
@@ -372,7 +374,7 @@ def dashboard():
         status=status,
     )
 
-
+#TANYA: validasi-upload
 @app.route("/upload_tif", methods=["POST"])
 def upload_tif():
     if "tif_file" not in request.files:
@@ -423,7 +425,7 @@ def upload_tif():
 # =====================================================
 # 11. API ROUTES
 # =====================================================
-
+#TANYA: api-polling
 @app.route("/api/latest_cb")
 def api_latest_cb():
     cb_table = read_cb_table()
@@ -462,7 +464,7 @@ def history():
 
     return render_template("history.html", data=res.data)
 
-
+#TANYA: ambil-riwayat
 @app.route("/load/<id>")
 def load_history(id):
     res = supabase.table("detections").select("*").eq("id", id).execute()
@@ -509,7 +511,7 @@ def load_history(id):
         last_update="-",
     )
 
-
+#TANYA: simpan-database
 @app.route("/save", methods=["POST"])
 def save_data():
     if "user" not in session:

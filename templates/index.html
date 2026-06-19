@@ -182,6 +182,7 @@
                 <h3>Gambar Setelah Proses Identifikasi Awan CB</h3>
                 <h5>Untuk Penjelasan Gambar Klik dibawah </h5>
                 {% if cb_file %}
+                `<!-- >>> TANYA: tampil-gambar-cb -->`
                 <img src="/data/{{ cb_file }}?t={{ timestamp }}" class="dashboard-image" onclick="openModalCB()"
                     style="cursor:pointer;">
                 {% else %}
@@ -304,7 +305,7 @@
     <script>
         const toggleBtn = document.getElementById("toggle-legend");
         const legendBox = document.getElementById("legend-box");
-
+        `// >>> TANYA: toggle-legend`
         toggleBtn.addEventListener("click", () => {
             legendBox.classList.toggle("hidden");
 
@@ -373,7 +374,7 @@
         if (irFile && irFile !== "None") {
 
             var imageUrl = "/data/" + irFile + "?t={{ timestamp }}";
-
+            `<!-- >>> TANYA:overlay-peta -->`
             var satOverlay = L.imageOverlay(
                 imageUrl,
                 imageBounds,
@@ -554,7 +555,7 @@
                     map.removeLayer(layer);
                 }
             });
-
+            `// >>> TANYA: marker bandara`
             // ---------- MARKER BANDARA ----------
             airports.forEach(ap => {
                 let result = getAirportWeather(ap.lat, ap.lon, cbData);
@@ -595,7 +596,7 @@
 
     </script>
 
-    <!-- Loading Overlay -->
+    <!-- TANYA: Loading Overlay  -->
     <div id="loadingOverlay" class="loading-overlay" style="display:none;">
         <div class="loading-box">
             <div class="spinner"></div>
@@ -607,8 +608,41 @@
     <script>
         const uploadForm = document.getElementById("uploadForm");
 
-        uploadForm.addEventListener("submit", function () {
-            document.getElementById("loadingOverlay").style.display = "flex";
+        // ★ Saat upload disubmit, tampilkan loading overlay DAN simpan
+        //   penanda di sessionStorage bahwa proses deteksi sedang berjalan.
+        //   Penanda ini bertahan melewati redirect ke /dashboard.
+        if (uploadForm) {
+            uploadForm.addEventListener("submit", function () {
+                document.getElementById("loadingOverlay").style.display = "flex";
+                sessionStorage.setItem("detecting", "1");
+            });
+        }
+
+        // ★ Setelah halaman /dashboard dimuat: jika tadi baru upload
+        //   (penanda 'detecting' ada), tahan loading overlay lalu polling
+        //   /api/status. Begitu status 'done'/'error', reload SEKALI agar
+        //   gambar hasil deteksi (satellite_latest.png & cb_latest.png) muncul.
+        window.addEventListener("DOMContentLoaded", function () {
+            if (sessionStorage.getItem("detecting") === "1") {
+                const overlay = document.getElementById("loadingOverlay");
+                if (overlay) overlay.style.display = "flex";
+
+                const cekStatus = setInterval(async function () {
+                    try {
+                        const res = await fetch("/api/status");
+                        const data = await res.json();
+
+                        if (data.status === "done" || data.status === "error") {
+                            clearInterval(cekStatus);
+                            sessionStorage.removeItem("detecting");
+                            // reload sekali untuk memuat gambar hasil deteksi
+                            window.location.reload();
+                        }
+                    } catch (err) {
+                        console.log("Cek status error:", err);
+                    }
+                }, 2000); // cek tiap 2 detik
+            }
         });
     </script>
 

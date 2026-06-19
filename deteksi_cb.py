@@ -21,21 +21,6 @@ RAW_BAND_PATH   = os.path.join(DATA_FOLDER, "raw_band.npy")
 
 MAX_WIDTH = 2000
 
-# =====================================================
-# ★ THRESHOLD — ubah nilai ini sesuai kebutuhan
-# =====================================================
-# Hanya CB dengan confidence ≥ MIN_CONF_THRESHOLD yang
-# akan ditampilkan di output gambar dan tabel.
-#
-# Klasifikasi intensitas (lihat fungsi classify_intensity):
-#   ≥ 40%      → STRONG   (merah)
-#   30% - 39%  → MODERATE (kuning)
-#   20% - 29%  → WEAK     (hijau)
-#
-# MIN_CONF_THRESHOLD = 0.20 → tampilkan WEAK, MODERATE, STRONG
-#                    = 0.30 → MODERATE & STRONG saja
-#                    = 0.40 → STRONG saja
-#
 MIN_CONF_THRESHOLD = 0.20   # ← ubah di sini
 
 os.makedirs(DATA_FOLDER, exist_ok=True)
@@ -68,7 +53,7 @@ T_WARM = 60.0
 T_COLD = -100.0
 DN_MAX = 65280.0
 
-
+#TANYA: rumus-suhu
 def dn_to_celsius(dn_uint16: np.ndarray) -> np.ndarray:
     """Konversi nilai uint16 dari TIF BMKG → suhu °C."""
     return T_WARM + (dn_uint16.astype(np.float32) / DN_MAX) * (T_COLD - T_WARM)
@@ -104,7 +89,7 @@ print(f"CB class ID terpilih = {CB_CLASS_ID}")
 # =====================================================
 # INTENSITY CLASSIFICATION
 # =====================================================
-
+#TANYA: klasifikasi-warna
 def classify_intensity(conf: float) -> str:
     # STRONG  : conf >= 40%  (CB sangat kuat)
     # MODERATE: 30% - 39%    (CB sedang)
@@ -120,7 +105,7 @@ def classify_intensity(conf: float) -> str:
 # =====================================================
 # GEO TIFF CONVERSION
 # =====================================================
-
+#TANYA: konversi-png
 def convert_tif_to_png(tif_path: str) -> str:
     with rasterio.open(tif_path) as src:
         bounds   = src.bounds
@@ -164,7 +149,7 @@ def convert_tif_to_png(tif_path: str) -> str:
 # =====================================================
 # EKSTRAKSI SUHU AKURAT PER BOUNDING BOX
 # =====================================================
-
+#TANYA: median-suhu
 def extract_temperature_for_box(
     x: int, y: int, w_box: int, h_box: int,
     scale: float,
@@ -223,7 +208,7 @@ def extract_temperature_for_box(
 # =====================================================
 # AI DETECTION
 # =====================================================
-
+#TANYA: panggil-model
 def detect_cb(image_path: str) -> int:
     image = cv2.imread(image_path)
 
@@ -252,7 +237,7 @@ def detect_cb(image_path: str) -> int:
         if boxes is None:
             continue
         for box in boxes:
-            # ★ BARU: filter kelas — hanya proses kelas CB, abaikan nonCB
+            #TANYA: filter-kelas-cb (abaikan non-cb)
             cls = int(box.cls[0])
             if cls != CB_CLASS_ID:
                 print(f"  SKIP (kelas={cls} '{model.names.get(cls, '?')}', bukan CB)")
@@ -271,7 +256,7 @@ def detect_cb(image_path: str) -> int:
     for (x, y, w_box, h_box, conf) in cluster_boxes:
 
         # ★ FILTER THRESHOLD ★
-        # Lewati deteksi yang tidak memenuhi minimum confidence
+        #TANYA: filter-threshold
         if conf < MIN_CONF_THRESHOLD:
             print(f"  SKIP CB (conf={conf:.3f} < threshold={MIN_CONF_THRESHOLD})")
             continue
@@ -395,7 +380,7 @@ def run_detection():
 
         time.sleep(5)
 
-
+#TANYA: konversi-koordinat
 def pixel_to_latlon(x, y, width, height, bounds):
     lat_min, lon_min, lat_max, lon_max = bounds
     lon = lon_min + (x / width)  * (lon_max - lon_min)

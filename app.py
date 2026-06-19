@@ -485,14 +485,26 @@ def load_history(id):
             ],
         })
 
+    # ★ Validasi: pastikan file gambar benar-benar ada di disk.
+    #   Entri lama bisa menunjuk ke file yang sudah tertimpa/hilang,
+    #   sehingga perlu di-set None agar template menampilkan teks,
+    #   bukan ikon gambar rusak.
+    ir_file = detection.get("ir_file")
+    cb_file = detection.get("image_url")
+
+    if ir_file and not os.path.exists(os.path.join(DATA_FOLDER, ir_file)):
+        ir_file = None
+    if cb_file and not os.path.exists(os.path.join(DATA_FOLDER, cb_file)):
+        cb_file = None
+
     return render_template(
         "index.html",
         jumlah_cb=detection["cb_count"],
         cb_table=cb_table,
         is_history=True,
         bounds=detection.get("bounds"),
-        ir_file=detection.get("ir_file"),
-        cb_file=detection.get("image_url"),
+        ir_file=ir_file,
+        cb_file=cb_file,
         timestamp=int(time.time()),
         last_update="-",
     )

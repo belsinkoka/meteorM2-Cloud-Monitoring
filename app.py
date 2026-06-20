@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory
 import os
-from datetime import datetime
+from datetime import , timedelta
 import cv2
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -356,8 +356,12 @@ def dashboard():
 
     # Last update time
     if ir_file:
+        # >>> TANYA: zona-waktu / wib / koreksi-jam
+        # Railway menjalankan server dengan timezone UTC. Indonesia (WIB) = UTC+7,
+        # tanpa daylight saving, sehingga offset tetap +7 jam sepanjang tahun.
         last_modified  = os.path.getmtime(os.path.join(DATA_FOLDER, ir_file))
-        formatted_time = datetime.fromtimestamp(last_modified).strftime("%d-%m-%Y %H:%M:%S")
+        wib_time       = datetime.fromtimestamp(last_modified) + timedelta(hours=7)
+        formatted_time = wib_time.strftime("%d-%m-%Y %H:%M:%S")
     else:
         formatted_time = "-"
 

@@ -166,6 +166,76 @@ body {
     transform: scale(0.96);
 }
 
+/* =========================================================
+   EDIT NAMA (rename inline) — selaras tema Ground Station
+   ========================================================= */
+.btn-edit-nama {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 6px;
+    padding: 2px 4px;
+    border-radius: 6px;
+    transition: background 0.15s var(--ease), transform 0.15s var(--ease);
+    vertical-align: middle;
+}
+
+.btn-edit-nama:hover {
+    background: rgba(63, 31, 16, 0.12);
+    transform: scale(1.1);
+}
+
+.form-rename-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.form-rename-inline input[type="text"] {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 6px 10px;
+    border: 1px solid var(--sky-400);
+    border-radius: 999px;
+    color: var(--ink);
+    min-width: 140px;
+    outline: none;
+    transition: border-color 0.15s var(--ease);
+}
+
+.form-rename-inline input[type="text"]:focus {
+    border-color: var(--soil-500);
+}
+
+.form-rename-inline button {
+    border: none;
+    border-radius: 999px;
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s var(--ease), filter 0.15s var(--ease);
+}
+
+.form-rename-inline button[type="submit"] {
+    background: linear-gradient(135deg, #2ecc71, #1e8449);
+    color: #fff;
+}
+
+.form-rename-inline button[type="button"] {
+    background: linear-gradient(135deg, #c0392b, #8b0000);
+    color: #fff;
+}
+
+.form-rename-inline button:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+}
+
 /* ===== HAMBURGER ===== */
 .hamburger {
     position: fixed;

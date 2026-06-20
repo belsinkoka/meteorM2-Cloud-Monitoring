@@ -70,15 +70,15 @@
                                 <button type="button" class="btn-edit-nama" onclick="editNama('{{ row.id }}')"
                                     title="Edit nama">✏️</button>
 
-                                <form id="form-rename-{{ row.id }}" class="form-rename-inline"
-                                    action="{{ url_for('rename_history', id=row.id) }}" method="POST"
-                                    style="display:none;">
-                                    <input type="text" name="nama_baru" value="{{ row.name or '' }}"
+                                <!-- >>> TANYA: edit-nama-history (div, bukan form, karena tidak boleh nested form) -->
+                                <div id="form-rename-{{ row.id }}" class="form-rename-inline" style="display:none;">
+                                    <input type="text" id="input-nama-{{ row.id }}" value="{{ row.name or '' }}"
                                         placeholder="Nama deteksi">
-                                    <button type="submit" title="Simpan nama">✔</button>
+                                    <button type="button" onclick="simpanNama('{{ row.id }}')"
+                                        title="Simpan nama">✔</button>
                                     <button type="button" onclick="batalEditNama('{{ row.id }}')"
                                         title="Batal">✖</button>
-                                </form>
+                                </div>
                             </td>
 
                             <td>{{ row.created_at }}</td>
@@ -137,6 +137,27 @@
         function batalEditNama(id) {
             document.getElementById('form-rename-' + id).style.display = 'none';
             document.getElementById('nama-' + id).style.display = 'inline';
+        }
+
+        // >>> TANYA: edit-nama-history / simpan-nama-fetch
+        // Kirim nama baru ke server via fetch (bukan form submit biasa),
+        // karena form rename tidak boleh bersarang di dalam form delete.
+        async function simpanNama(id) {
+            const namaBaru = document.getElementById('input-nama-' + id).value;
+
+            const formData = new FormData();
+            formData.append('nama_baru', namaBaru);
+
+            try {
+                await fetch('/rename/' + id, {
+                    method: 'POST',
+                    body: formData,
+                });
+                window.location.reload();
+            } catch (err) {
+                alert('Gagal menyimpan nama. Coba lagi.');
+                console.error(err);
+            }
         }
     </script>
 

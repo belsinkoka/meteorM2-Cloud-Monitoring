@@ -507,9 +507,10 @@ def load_history(id):
         jumlah_cb=detection["cb_count"],
         cb_table=cb_table,
         is_history=True,
+        nama_deteksi=detection.get("name"),
         bounds=detection.get("bounds"),
-        ir_file=ir_file,
-        cb_file=cb_file,
+        ir_file=detection.get("ir_file"),
+        cb_file=detection.get("image_url"),
         timestamp=int(time.time()),
         last_update="-",
     )
@@ -519,6 +520,11 @@ def load_history(id):
 def save_data():
     if "user" not in session:
         return redirect(url_for("login"))
+
+    # >>> TANYA: nama-custom-simpan / edit-nama-history
+    # Nama opsional yang diisi user lewat popup saat klik Simpan.
+    # Jika kosong, default ke timestamp agar tetap mudah dibedakan.
+    nama_input = request.form.get("nama_deteksi", "").strip()
 
     ir_file  = get_latest_ir_image()
     cb_file  = "cb_latest.png" if os.path.exists(os.path.join(DATA_FOLDER, "cb_latest.png")) else None
@@ -545,7 +551,10 @@ def save_data():
             os.path.join(HISTORY_FOLDER, f"ir_{timestamp}.png"),
         )
 
+    nama_final = nama_input if nama_input else f"Deteksi {timestamp}"
+
     result = supabase.table("detections").insert({
+        "name":      nama_final,
         "image_url": new_cb,
         "ir_file":   new_ir,
         "cb_count":  count,
@@ -571,6 +580,17 @@ def save_data():
 
     return redirect(url_for("dashboard"))
 
+# >>> TANYA: edit-nama-history / rename-deteksi
+@app.route("/rename/<id>", methods=["POST"])
+def rename_history(id):
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    nama_baru = request.form.get("nama_baru", "").strip()
+    if nama_baru:
+        supabase.table("detections").update({"name": nama_baru}).eq("id", id).execute()
+
+    return redirect(url_for("history"))
 
 @app.route("/delete_selected", methods=["POST"])
 def delete_selected():

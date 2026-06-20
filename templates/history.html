@@ -50,6 +50,7 @@
                     <thead>
                         <tr>
                             <th><input type="checkbox" onclick="toggleAll(this)"></th>
+                            <th>Nama</th>
                             <th>Waktu</th>
                             <th>Jumlah CB</th>
                             <th>Aksi</th>
@@ -62,6 +63,24 @@
                             <td>
                                 <input type="checkbox" name="selected_ids" value="{{ row.id }}">
                             </td>
+
+                            <!-- >>> TANYA: edit-nama-history / rename-deteksi -->
+                            <td>
+                                <span id="nama-{{ row.id }}">{{ row.name or "Deteksi " + row.created_at }}</span>
+                                <button type="button" class="btn-edit-nama" onclick="editNama('{{ row.id }}')"
+                                    title="Edit nama">✏️</button>
+
+                                <form id="form-rename-{{ row.id }}" class="form-rename-inline"
+                                    action="{{ url_for('rename_history', id=row.id) }}" method="POST"
+                                    style="display:none;">
+                                    <input type="text" name="nama_baru" value="{{ row.name or '' }}"
+                                        placeholder="Nama deteksi">
+                                    <button type="submit" title="Simpan nama">✔</button>
+                                    <button type="button" onclick="batalEditNama('{{ row.id }}')"
+                                        title="Batal">✖</button>
+                                </form>
+                            </td>
+
                             <td>{{ row.created_at }}</td>
                             <td>{{ row.cb_count }}</td>
                             <td>
@@ -106,6 +125,18 @@
             for (var i = 0; i < checkboxes.length; i++) {
                 checkboxes[i].checked = source.checked;
             }
+        }
+    </script>
+
+    <script>
+        function editNama(id) {
+            document.getElementById('nama-' + id).style.display = 'none';
+            document.getElementById('form-rename-' + id).style.display = 'inline-block';
+        }
+
+        function batalEditNama(id) {
+            document.getElementById('form-rename-' + id).style.display = 'none';
+            document.getElementById('nama-' + id).style.display = 'inline';
         }
     </script>
 

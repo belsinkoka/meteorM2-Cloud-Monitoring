@@ -209,6 +209,93 @@ def extract_temperature_for_box(
 # =====================================================
 # AI DETECTION
 # =====================================================
+
+# =====================================================
+# MERGE BOUNDING BOX OVERLAP
+# =====================================================
+#
+# Box CB yang saling tumpang tindih (IoU di atas ambang) digabung
+# menjadi satu box besar yang membungkus semuanya. Confidence yang
+# dipakai adalah yang TERTINGGI di antara anggota cluster, sehingga
+# level STRONG selalu diutamakan dibanding MODERATE/WEAK saat overlap.
+#
+#TANYA: merge-overlap-box / nms-iou
+MERGE_IOU_THRESHOLD = 0.20
+
+def _iou(box_a, box_b):
+    ax1, ay1, ax2, ay2 = box_a
+    bx1, by1, bx2, by2 = box_b
+
+    inter_x1 = max(ax1, bx1)
+    inter_y1 = max(ay1, by1)
+    inter_x2 = min(ax2, bx2)
+    inter_y2 = min(ay2, by2)
+
+    inter_w = max(0.0, inter_x2 - inter_x1)
+    inter_h = max(0.0, inter_y2 - inter_y1)
+    inter_area = inter_w * inter_h
+
+    area_a = (ax2 - ax1) * (ay2 - ay1)
+    area_b = (bx2 - bx1) * (by2 - by1)
+    union = area_a + area_b - inter_area
+
+    return inter_area / union if union > 0 else 0.0
+
+
+def merge_overlapping_boxes(boxes_with_conf, iou_thresh=MERGE_IOU_THRESHOLD):
+    """
+    boxes_with_conf: list of (x, y, w_box, h_box, conf)
+    return: list of (x, y, w_box, h_box, conf) hasil merge,
+            conf yang dipakai adalah conf TERTINGGI di tiap cluster.
+    """
+    # urutkan dari confidence tertinggi agar cluster terbentuk dari box terkuat
+    items = sorted(boxes_with_conf, key=lambda d: d[4], reverse=True)
+    used  = [False] * len(items)
+    merged = []
+
+    for i in range(len(items)):
+        if used[i]:
+            continue
+
+        cluster = [items[i]]
+        used[i] = True
+
+        changed = True
+        while changed:
+            changed = False
+            xs1 = [c[0] for c in cluster]
+            ys1 = [c[1] for c in cluster]
+            xs2 = [c[0] + c[2] for c in cluster]
+            ys2 = [c[1] + c[3] for c in cluster]
+            cluster_box = (min(xs1), min(ys1), max(xs2), max(ys2))
+
+            for j in range(len(items)):
+                if used[j]:
+                    continue
+                xj, yj, wj, hj, _ = items[j]
+                box_j = (xj, yj, xj + wj, yj + hj)
+                if _iou(cluster_box, box_j) >= iou_thresh:
+                    cluster.append(items[j])
+                    used[j] = True
+                    changed = True
+
+        xs1 = [c[0] for c in cluster]
+        ys1 = [c[1] for c in cluster]
+        xs2 = [c[0] + c[2] for c in cluster]
+        ys2 = [c[1] + c[3] for c in cluster]
+
+        x_merged = min(xs1)
+        y_merged = min(ys1)
+        w_merged = max(xs2) - x_merged
+        h_merged = max(ys2) - y_merged
+
+        # confidence tertinggi di cluster → STRONG selalu menang saat overlap
+        conf_merged = max(c[4] for c in cluster)
+
+        merged.append((x_merged, y_merged, w_merged, h_merged, conf_merged))
+
+    return merged
+
 #TANYA: panggil-model
 def detect_cb(image_path: str) -> int:
     image = cv2.imread(image_path)
@@ -249,6 +336,12 @@ def detect_cb(image_path: str) -> int:
             x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
             print(f"RAW DETECTION — CB conf={conf:.3f}")
             cluster_boxes.append((x1, y1, x2 - x1, y2 - y1, conf))
+
+    # >>> TANYA: merge-overlap-box
+    # Gabungkan box yang saling tumpang tindih SEBELUM filter threshold,
+    # supaya box STRONG yang overlap dengan WEAK/MODERATE tetap terpilih
+    # sebagai representasi cluster tersebut.
+    cluster_boxes = merge_overlapping_boxes(cluster_boxes)
 
     cb_count = 0
     cb_table = []

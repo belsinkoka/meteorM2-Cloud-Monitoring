@@ -134,31 +134,12 @@
     <form action="{{ url_for('save_data') }}" method="POST">
         <p align="right">
             <!-- >>> TANYA: nama-custom-simpan -->
-            <button type="button" class="btn-save"
-                onclick="document.getElementById('modalSimpanNama').style.display='block'">
+        <form action="{{ url_for('save_data') }}" method="POST">
+            <button type="submit" class="btn-save">
                 💾 Simpan Hasil Deteksi
             </button>
+        </form>
 
-            <!-- >>> TANYA: nama-custom-simpan -->
-        <div id="modalSimpanNama" class="modal">
-            <div class="modal-content">
-                <span class="close"
-                    onclick="document.getElementById('modalSimpanNama').style.display='none'">&times;</span>
-                <h3>Simpan Hasil Deteksi</h3>
-                <p>Beri nama untuk hasil monitoring ini (opsional, kosongkan untuk nama otomatis).</p>
-                <form action="/save" method="POST">
-                    <input type="text" name="nama_deteksi" placeholder="Contoh: Deteksi Pagi 20 Juni"
-                        style="width:100%; padding:10px 14px; margin:14px 0 18px; border-radius:999px; border:none; font-size:14px; box-sizing:border-box;">
-                    <div style="display:flex; gap:10px; justify-content:flex-end;">
-                        <button type="button" class="btn-toggle"
-                            onclick="document.getElementById('modalSimpanNama').style.display='none'">
-                            Batal
-                        </button>
-                        <button type="submit" class="btn-save">Simpan</button>
-                    </div>
-                </form>
-            </div>
-        </div>
         </p>
     </form>
     {% endif %}

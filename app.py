@@ -465,7 +465,17 @@ def history():
         .execute()
     )
 
-    return render_template("history.html", data=res.data)
+    data = res.data
+
+    for row in data:
+        if row.get("created_at"):
+            dt = datetime.fromisoformat(
+                row["created_at"].replace("Z", "+00:00")
+            ) + timedelta(hours=7)      # WIB
+
+            row["created_at"] = dt.strftime("%d-%m-%y %H:%M:%S")
+
+    return render_template("history.html", data=data)
 
 #TANYA: ambil-riwayat
 @app.route("/load/<id>")
@@ -524,7 +534,9 @@ def save_data():
     # >>> TANYA: nama-custom-simpan / edit-nama-history
     # Nama opsional yang diisi user lewat popup saat klik Simpan.
     # Jika kosong, default ke timestamp agar tetap mudah dibedakan.
-    nama_input = request.form.get("nama_deteksi", "").strip()
+    now = datetime.now() + timedelta(hours=7)   # WIB
+
+    nama_final = f"Deteksi_{now.strftime('%d-%m-%y')}"
 
     ir_file  = get_latest_ir_image()
     cb_file  = "cb_latest.png" if os.path.exists(os.path.join(DATA_FOLDER, "cb_latest.png")) else None
@@ -550,8 +562,6 @@ def save_data():
             os.path.join(DATA_FOLDER, ir_file),
             os.path.join(HISTORY_FOLDER, f"ir_{timestamp}.png"),
         )
-
-    nama_final = nama_input if nama_input else f"Deteksi {timestamp}"
 
     result = supabase.table("detections").insert({
         "name":      nama_final,

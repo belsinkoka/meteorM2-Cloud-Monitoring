@@ -5,7 +5,6 @@ import cv2
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from supabase import create_client
-from dateutil.parser import parse
 import threading
 import numpy as np
 import shutil
@@ -453,30 +452,21 @@ def api_status():
 
 @app.route("/history")
 def history():
+
     if "user" not in session:
         return redirect(url_for("login"))
-
-    limit = int(request.args.get("limit", 50))
 
     res = (
         supabase.table("detections")
         .select("*")
         .order("created_at", desc=True)
-        .limit(limit)
         .execute()
     )
 
-    data = res.data
-
-    for row in data:
-
-        if row.get("created_at"):
-
-            dt = parse(str(row["created_at"])) + timedelta(hours=7)
-
-            row["created_at"] = dt.strftime("%d-%m-%y %H:%M:%S")
-
-    return render_template("history.html", data=data)
+    return render_template(
+        "history.html",
+        data=res.data
+    )
 
 #TANYA: ambil-riwayat
 @app.route("/load/<id>")
@@ -535,15 +525,16 @@ def save_data():
     # >>> TANYA: nama-custom-simpan / edit-nama-history
     # Nama opsional yang diisi user lewat popup saat klik Simpan.
     # Jika kosong, default ke timestamp agar tetap mudah dibedakan.
-    now = datetime.now() + timedelta(hours=7)   # WIB
-
-    nama_final = f"Deteksi_{now.strftime('%d-%m-%y')}"
 
     ir_file  = get_latest_ir_image()
     cb_file  = "cb_latest.png" if os.path.exists(os.path.join(DATA_FOLDER, "cb_latest.png")) else None
     count    = read_cb_count()
     cb_table = read_cb_table()
     bounds   = read_map_bounds(default=None)
+    now = datetime.now() + timedelta(hours=7)
+
+    nama_final = f"Deteksi_{now.strftime('%d-%m-%y')}"
+    display_time = now.strftime("%d-%m-%y %H:%M:%S")
 
     timestamp = int(time.time())
 
@@ -565,11 +556,12 @@ def save_data():
         )
 
     result = supabase.table("detections").insert({
-        "name":      nama_final,
+        "name": nama_final,
+        "display_time": display_time,
         "image_url": new_cb,
-        "ir_file":   new_ir,
-        "cb_count":  count,
-        "bounds":    bounds,
+        "ir_file": new_ir,
+        "cb_count": count,
+        "bounds": bounds,
     }).execute()
 
     if not result.data:

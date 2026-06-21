@@ -131,17 +131,13 @@
     <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
 
     {% if not is_history %}
-    <form action="{{ url_for('save_data') }}" method="POST">
-        <p align="right">
-            <!-- >>> TANYA: nama-custom-simpan -->
+    <div style="text-align:right;">
         <form action="{{ url_for('save_data') }}" method="POST">
             <button type="submit" class="btn-save">
                 💾 Simpan Hasil Deteksi
             </button>
         </form>
-
-        </p>
-    </form>
+    </div>
     {% endif %}
 
     {% if is_history %}

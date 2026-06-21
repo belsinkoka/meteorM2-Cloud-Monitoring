@@ -11,4 +11,3 @@ supabase
 werkzeug
 rasterio
 matplotlib
-dateutil

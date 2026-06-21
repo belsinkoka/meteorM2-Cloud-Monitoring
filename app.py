@@ -5,6 +5,7 @@ import cv2
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from supabase import create_client
+from dateutil.parser import parse
 import threading
 import numpy as np
 import shutil
@@ -468,10 +469,10 @@ def history():
     data = res.data
 
     for row in data:
+
         if row.get("created_at"):
-            dt = datetime.fromisoformat(
-                row["created_at"].replace("Z", "+00:00")
-            ) + timedelta(hours=7)      # WIB
+
+            dt = parse(str(row["created_at"])) + timedelta(hours=7)
 
             row["created_at"] = dt.strftime("%d-%m-%y %H:%M:%S")
 

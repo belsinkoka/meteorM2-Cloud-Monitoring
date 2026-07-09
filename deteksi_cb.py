@@ -22,7 +22,7 @@ RAW_BAND_PATH   = os.path.join(DATA_FOLDER, "raw_band.npy")
 
 MAX_WIDTH = 2000
 
-MIN_CONF_THRESHOLD = 0.20   # ← ubah di sini
+MIN_CONF_THRESHOLD = 0.20   # conf min yang diizinkan
 
 os.makedirs(DATA_FOLDER, exist_ok=True)
 

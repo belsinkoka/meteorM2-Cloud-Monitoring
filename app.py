@@ -142,7 +142,7 @@ def read_cb_count():
 def download_bmkg_image():
     timestamp = int(time.time())  # anti-cache
     url = (
-        f"https://inderaja.bmkg.go.id/IMAGE/HIMA/H08_EH_Indonesia.png?t={timestamp}"
+        f"https://aviation.bmkg.go.id/latest/MTSAT_CL_Indonesia.png?t={timestamp}"
     )
     try:
         response = requests.get(url, timeout=10)

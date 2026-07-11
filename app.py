@@ -140,20 +140,37 @@ def read_cb_count():
 # =====================================================
 
 def download_bmkg_image():
-    timestamp = int(time.time())  # anti-cache
-    url = (
-        f"https://aviation.bmkg.go.id/latest/MTSAT_CL_Indonesia.png?t={timestamp}"
-    )
+    timestamp = int(time.time())
+
+    url = f"https://aviation.bmkg.go.id/latest/MTSAT_CL_Indonesia.png?t={timestamp}"
+
     try:
-        response = requests.get(url, timeout=10)
+        response = requests.get(
+            url,
+            timeout=15,
+            headers={
+                "User-Agent": "Mozilla/5.0"
+            }
+        )
+
+        print("Status :", response.status_code)
+        print("Content-Type :", response.headers.get("Content-Type"))
+        print("Content-Length :", len(response.content))
+        print("Last-Modified :", response.headers.get("Last-Modified"))
+
         if response.status_code == 200:
+
             file_path = os.path.join(BMKG_FOLDER, "bmkg_latest.png")
+
             with open(file_path, "wb") as f:
                 f.write(response.content)
+
             print("BMKG image updated")
             return True
+
     except Exception as e:
-        print("Error download BMKG:", e)
+        print(e)
+
     return False
 
 #TANYA: daemon-bmkg

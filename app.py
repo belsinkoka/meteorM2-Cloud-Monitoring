@@ -143,38 +143,48 @@ def download_bmkg_image():
     timestamp = int(time.time())
     url = f"https://aviation.bmkg.go.id/latest/MTSAT_CL_Indonesia.png?t={timestamp}"
 
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    print("Folder BMKG :", BMKG_FOLDER)
+    print("Absolute :", os.path.abspath(BMKG_FOLDER))
+
+    # Gunakan Session
+    session = requests.Session()
+
+    session.headers.update({
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
         "Referer": "https://aviation.bmkg.go.id/",
         "Accept": "image/webp,image/apng,image/*,*/*;q=0.8",
-    }
+        "Accept-Language": "id,en-US;q=0.9,en;q=0.8",
+    })
 
     try:
-        print("Folder BMKG :", BMKG_FOLDER)
-        print("Absolute :", os.path.abspath(BMKG_FOLDER))
-        response = requests.get(url, timeout=15, headers=headers)
+        # Gunakan session.get(), bukan requests.get()
+        response = session.get(url, timeout=20)
+
         print("Status :", response.status_code)
         print("Type :", response.headers.get("Content-Type"))
         print("Size :", len(response.content))
-        # BMKG memblokir request dari IP server cloud (403 Forbidden).
-        # Ini bukan error kode — server Railway diblokir oleh BMKG.
-        # Fitur BMKG ditampilkan sebagai tidak tersedia jika ini terjadi.
+
+        # Kalau 403, tampilkan isi halaman
         if response.status_code == 403:
-            print(f"[BMKG] Akses diblokir (403) — IP cloud diblokir BMKG")
+            print("===== ISI HALAMAN 403 =====")
+            print(response.text[:1500])   # tampilkan 1500 karakter pertama
             return False
 
         if response.status_code == 200 and len(response.content) > 1000:
             file_path = os.path.join(BMKG_FOLDER, "bmkg_latest.png")
+
             with open(file_path, "wb") as f:
                 f.write(response.content)
-            print(f"[BMKG] Gambar berhasil diperbarui ({len(response.content)} bytes)")
+
+            print("BMKG image updated")
             return True
+
         else:
-            print(f"[BMKG] Response tidak valid: {response.status_code}, {len(response.content)} bytes")
+            print("Response tidak valid")
             return False
 
     except Exception as e:
-        print(f"[BMKG] Error: {e}")
+        print("ERROR:", e)
         return False
 
 #TANYA: daemon-bmkg

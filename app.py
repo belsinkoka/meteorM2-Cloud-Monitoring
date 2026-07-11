@@ -141,37 +141,37 @@ def read_cb_count():
 
 def download_bmkg_image():
     timestamp = int(time.time())
-
     url = f"https://aviation.bmkg.go.id/latest/MTSAT_CL_Indonesia.png?t={timestamp}"
 
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Referer": "https://aviation.bmkg.go.id/",
+        "Accept": "image/webp,image/apng,image/*,*/*;q=0.8",
+    }
+
     try:
-        response = requests.get(
-            url,
-            timeout=15,
-            headers={
-                "User-Agent": "Mozilla/5.0"
-            }
-        )
+        response = requests.get(url, timeout=15, headers=headers)
 
-        print("Status :", response.status_code)
-        print("Content-Type :", response.headers.get("Content-Type"))
-        print("Content-Length :", len(response.content))
-        print("Last-Modified :", response.headers.get("Last-Modified"))
+        # BMKG memblokir request dari IP server cloud (403 Forbidden).
+        # Ini bukan error kode — server Railway diblokir oleh BMKG.
+        # Fitur BMKG ditampilkan sebagai tidak tersedia jika ini terjadi.
+        if response.status_code == 403:
+            print(f"[BMKG] Akses diblokir (403) — IP cloud diblokir BMKG")
+            return False
 
-        if response.status_code == 200:
-
+        if response.status_code == 200 and len(response.content) > 1000:
             file_path = os.path.join(BMKG_FOLDER, "bmkg_latest.png")
-
             with open(file_path, "wb") as f:
                 f.write(response.content)
-
-            print("BMKG image updated")
+            print(f"[BMKG] Gambar berhasil diperbarui ({len(response.content)} bytes)")
             return True
+        else:
+            print(f"[BMKG] Response tidak valid: {response.status_code}, {len(response.content)} bytes")
+            return False
 
     except Exception as e:
-        print(e)
-
-    return False
+        print(f"[BMKG] Error: {e}")
+        return False
 
 #TANYA: daemon-bmkg
 def auto_update_bmkg():

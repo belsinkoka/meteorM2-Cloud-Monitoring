@@ -150,8 +150,12 @@ def download_bmkg_image():
     }
 
     try:
+        print("Folder BMKG :", BMKG_FOLDER)
+        print("Absolute :", os.path.abspath(BMKG_FOLDER))
         response = requests.get(url, timeout=15, headers=headers)
-
+        print("Status :", response.status_code)
+        print("Type :", response.headers.get("Content-Type"))
+        print("Size :", len(response.content))
         # BMKG memblokir request dari IP server cloud (403 Forbidden).
         # Ini bukan error kode — server Railway diblokir oleh BMKG.
         # Fitur BMKG ditampilkan sebagai tidak tersedia jika ini terjadi.
